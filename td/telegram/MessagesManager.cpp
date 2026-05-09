@@ -481,10 +481,10 @@ class GetDialogListQuery final : public Td::ResultHandler {
     switch (ptr->get_id()) {
       case telegram_api::messages_dialogs::ID: {
         auto dialogs = move_tl_object_as<telegram_api::messages_dialogs>(ptr);
+        auto total_count = narrow_cast<int32>(dialogs->dialogs_.size());
         td_->user_manager_->on_get_users(std::move(dialogs->users_), "GetDialogListQuery");
         td_->chat_manager_->on_get_chats(std::move(dialogs->chats_), "GetDialogListQuery");
-        td_->messages_manager_->on_get_dialogs(folder_id_, std::move(dialogs->dialogs_),
-                                               narrow_cast<int32>(dialogs->dialogs_.size()),
+        td_->messages_manager_->on_get_dialogs(folder_id_, std::move(dialogs->dialogs_), total_count,
                                                std::move(dialogs->messages_), std::move(promise_));
         break;
       }

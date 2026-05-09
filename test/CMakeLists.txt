@@ -56,6 +56,9 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/dialog_participant_group_admin_light_fuzz.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialog_participant_group_admin_source_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialog_participant_group_admin_stress.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/w2_use_after_move_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/w2_use_after_move_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/w2_use_after_move_integration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/poll.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pvs_regressions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pvs_level1_contracts_adversarial.cpp
