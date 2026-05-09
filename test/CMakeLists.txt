@@ -59,7 +59,21 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/w2_use_after_move_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/w2_use_after_move_adversarial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/w2_use_after_move_integration.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/quick_reply_poll_media_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/quick_reply_poll_media_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/quick_reply_poll_media_integration.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/forwarded_poll_statistics_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/forwarded_poll_statistics_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/forwarded_poll_statistics_integration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/poll.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/poll_voter_visibility_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/poll_voter_visibility_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/poll_voter_visibility_integration.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/poll_option_entities_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/poll_option_entities_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/poll_option_entities_integration.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/poll_option_entities_light_fuzz.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/poll_option_entities_stress.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pvs_regressions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/pvs_level1_contracts_adversarial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tl_simple_struct_init_contract.cpp
