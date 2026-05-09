@@ -8266,7 +8266,7 @@ void StickersManager::do_upload_sticker_file(UserId user_id, FileUploadId file_u
   FileType file_type = file_view.get_type();
 
   bool had_input_file = input_file != nullptr;
-  auto input_media = [&]() {
+  auto input_media = [&] {
     if (file_type == FileType::Sticker) {
       return get_input_media(file_upload_id.get_file_id(), std::move(input_file), nullptr, string());
     }
