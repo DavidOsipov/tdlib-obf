@@ -9,7 +9,7 @@ from __future__ import annotations
 import pathlib
 import sys
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 THIS_DIR = pathlib.Path(__file__).resolve().parent
 if str(THIS_DIR) not in sys.path:
