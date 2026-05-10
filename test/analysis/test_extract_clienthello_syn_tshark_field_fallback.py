@@ -9,6 +9,7 @@ from __future__ import annotations
 import pathlib
 import sys
 import unittest
+from unittest import mock
 
 THIS_DIR = pathlib.Path(__file__).resolve().parent
 if str(THIS_DIR) not in sys.path:
@@ -29,7 +30,7 @@ class ExtractClientHelloSynTsharkFieldFallback(unittest.TestCase):
             "command failed (1): tshark -r capture.pcap -Y tcp.stream == 3 -T fields -e tcp.options.kind\n"
             "Some fields aren't valid:\n\ttcp.options.kind"
         )
-        with unittest.mock.patch(
+        with mock.patch(
             "extract_client_hello_fixtures.run_command",
             side_effect=[unsupported_error, "64||1460|8|2,4,8,1,3|321\n"],
         ) as run_command_mock:
@@ -58,7 +59,7 @@ class ExtractClientHelloSynTsharkFieldFallback(unittest.TestCase):
             "command failed (1): tshark ... -e tcp.option_kind\nSome fields aren't valid:\n\ttcp.option_kind"
         )
 
-        with unittest.mock.patch(
+        with mock.patch(
             "extract_client_hello_fixtures.run_command",
             side_effect=[first_error, second_error],
         ):
