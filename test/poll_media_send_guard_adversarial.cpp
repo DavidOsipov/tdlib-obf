@@ -47,7 +47,7 @@ TEST(PollMediaSendGuardAdversarial, SendGateChecksPollMediaBeforeChannelPolicyBr
       "if(message_content_poll_has_media(content,td)){returnStatus::Error(400,\"Pollswithmediacan'tbesentyet\");}");
   const auto channel_policy_pos = normalized.find("if(dialog_type==DialogType::Channel){");
   const auto private_policy_pos =
-      normalized.find("if(dialog_type==DialogType::User&&!is_forward&&!td->auth_manager_->is_bot()");
+      normalized.find("if(dialog_type==DialogType::User&&!is_forward&&!td->auth_manager_->is_bot()&&");
 
   ASSERT_TRUE(media_guard_pos != td::string::npos);
   ASSERT_TRUE(channel_policy_pos != td::string::npos);
