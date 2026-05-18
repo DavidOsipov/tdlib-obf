@@ -929,6 +929,7 @@ set(TDLIB_SOURCE_PART2
     td/telegram/WebApp.cpp
     td/telegram/WebAppManager.cpp
     td/telegram/WebAppOpenParameters.cpp
+    td/telegram/WebDomainException.cpp
     td/telegram/WebPageBlock.cpp
     td/telegram/WebPagesManager.cpp
     td/telegram/AccentColorId.h
