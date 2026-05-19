@@ -10857,7 +10857,7 @@ td_api::object_ptr<td_api::MessageContent> get_message_content_object(
       const auto *m = static_cast<const MessagePhoto *>(content);
       auto photo = get_photo_object(td->file_manager_.get(), m->photo);
       if (photo == nullptr) {
-        LOG(ERROR) << "Have empty " << m->photo;
+        LOG(ERROR) << "Have empty " << m->photo << " in " << message_id << " in " << dialog_id;
         return make_tl_object<td_api::messageExpiredPhoto>();
       }
       return make_tl_object<td_api::messagePhoto>(
@@ -10890,7 +10890,8 @@ td_api::object_ptr<td_api::MessageContent> get_message_content_object(
       if (web_page == nullptr && get_first_url(m->text).empty()) {
         disable_web_page_preview = false;
       } else if (disable_web_page_preview && web_page != nullptr) {
-        LOG(ERROR) << "Have " << m->web_page_id << " in a message with link preview disabled";
+        LOG(ERROR) << "Have " << m->web_page_id << " in " << message_id << " in " << dialog_id
+                   << " with link preview disabled";
         web_page = nullptr;
       }
       td_api::object_ptr<td_api::linkPreviewOptions> link_preview_options;
@@ -10955,7 +10956,7 @@ td_api::object_ptr<td_api::MessageContent> get_message_content_object(
       const auto *m = static_cast<const MessageChatChangePhoto *>(content);
       auto photo = get_chat_photo_object(td->file_manager_.get(), m->photo);
       if (photo == nullptr) {
-        LOG(ERROR) << "Have empty chat " << m->photo;
+        LOG(ERROR) << "Have empty chat " << m->photo << " in " << message_id << " in " << dialog_id;
         return make_tl_object<td_api::messageChatDeletePhoto>();
       }
       return make_tl_object<td_api::messageChatChangePhoto>(std::move(photo));
@@ -11140,7 +11141,7 @@ td_api::object_ptr<td_api::MessageContent> get_message_content_object(
           }
         }
       } else {
-        LOG(ERROR) << "Receive gifted premium in " << dialog_id;
+        LOG(ERROR) << "Receive gifted premium in " << message_id << " in " << dialog_id;
       }
       auto month_count = get_premium_duration_month_count(m->days);
       return td_api::make_object<td_api::messageGiftedPremium>(
@@ -11161,7 +11162,7 @@ td_api::object_ptr<td_api::MessageContent> get_message_content_object(
       const auto *m = static_cast<const MessageSuggestProfilePhoto *>(content);
       auto photo = get_chat_photo_object(td->file_manager_.get(), m->photo);
       if (photo == nullptr) {
-        LOG(ERROR) << "Have empty suggested profile " << m->photo;
+        LOG(ERROR) << "Have empty suggested profile " << m->photo << " in " << message_id << " in " << dialog_id;
         return make_tl_object<td_api::messageUnsupported>();
       }
       return make_tl_object<td_api::messageSuggestProfilePhoto>(std::move(photo));
@@ -11297,7 +11298,7 @@ td_api::object_ptr<td_api::MessageContent> get_message_content_object(
           }
         }
       } else {
-        LOG(ERROR) << "Receive gifted stars in " << dialog_id;
+        LOG(ERROR) << "Receive gifted stars in " << message_id << " in " << dialog_id;
       }
       return td_api::make_object<td_api::messageGiftedStars>(
           gifter_user_id, receiver_user_id, m->currency, m->amount, m->crypto_currency, m->crypto_amount, m->star_count,
@@ -11462,7 +11463,7 @@ td_api::object_ptr<td_api::MessageContent> get_message_content_object(
           }
         }
       } else {
-        LOG(ERROR) << "Receive gifted TON in " << dialog_id;
+        LOG(ERROR) << "Receive gifted TON in " << message_id << " in " << dialog_id;
       }
       return td_api::make_object<td_api::messageGiftedTon>(
           gifter_user_id, receiver_user_id, m->crypto_amount, m->transaction_id,
@@ -11490,7 +11491,7 @@ td_api::object_ptr<td_api::MessageContent> get_message_content_object(
       if (m->is_balance_too_low) {
         auto price = m->price.get_suggested_post_price_object();
         if (price == nullptr) {
-          LOG(ERROR) << "Have no price for messageSuggestedPostApprovalFailed";
+          LOG(ERROR) << "Have no price for messageSuggestedPostApprovalFailed in " << message_id << " in " << dialog_id;
           price = td_api::make_object<td_api::suggestedPostPriceStar>(1);
         }
         return td_api::make_object<td_api::messageSuggestedPostApprovalFailed>(m->suggested_post_message_id.get(),
