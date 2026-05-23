@@ -677,6 +677,7 @@ set(TDLIB_SOURCE_PART1
     td/telegram/files/FileStats.cpp
     td/telegram/files/FileStatsWorker.cpp
     td/telegram/files/FileType.cpp
+    td/telegram/files/FileUploadId.cpp
     td/telegram/files/FileUploader.cpp
     td/telegram/files/FileUploadManager.cpp
     td/telegram/files/PartsManager.cpp
