@@ -711,6 +711,7 @@ set(TDLIB_SOURCE_PART1
     td/telegram/InputGroupCallId.cpp
     td/telegram/InputInvoice.cpp
     td/telegram/InputMessageText.cpp
+    td/telegram/JoinChatBotResult.cpp
     td/telegram/JsonValue.cpp
     td/telegram/KeyboardButtonStyle.cpp
     td/telegram/LanguagePackManager.cpp
