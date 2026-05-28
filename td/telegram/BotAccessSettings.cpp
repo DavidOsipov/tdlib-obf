@@ -25,14 +25,13 @@ BotAccessSettings::BotAccessSettings(Td *td, telegram_api::object_ptr<telegram_a
 
   if (is_restricted_) {
     for (auto &user : settings->add_users_) {
-      auto user_id = UserManager::get_user_id(user);
+      auto user_id = td->user_manager_->on_get_user(std::move(user), "BotAccessSettings");
       if (!user_id.is_valid()) {
         validation_status_ = Status::Error(500, "Receive invalid added user in bot access settings");
         LOG(ERROR) << validation_status_;
         added_user_ids_.clear();
         return;
       }
-      td->user_manager_->on_get_user(std::move(user), "BotAccessSettings");
       added_user_ids_.push_back(user_id);
     }
   }
