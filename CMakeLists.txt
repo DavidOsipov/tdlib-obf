@@ -683,6 +683,7 @@ set(TDLIB_SOURCE_PART1
     td/telegram/files/PartsManager.cpp
     td/telegram/files/ResourceManager.cpp
     td/telegram/files/ResourceState.cpp
+    td/telegram/FormattedDate.cpp
     td/telegram/ForumTopic.cpp
     td/telegram/ForumTopicEditedData.cpp
     td/telegram/ForumTopicIcon.cpp
