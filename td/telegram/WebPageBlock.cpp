@@ -1466,6 +1466,15 @@ class WebPageBlockList final : public WebPageBlock {
       }
     }
 
+    bool can_send(const RestrictedRights &rights) const {
+      for (const auto &page_block : page_blocks) {
+        if (!page_block->can_send(rights)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
     Item clone() const {
       Item result;
       result.label = label;
@@ -1570,6 +1579,15 @@ class WebPageBlockList final : public WebPageBlock {
     for (auto &item : items) {
       item.for_each_rich_text(recurse_text, callback);
     }
+  }
+
+  bool can_send(const RestrictedRights &rights) const final {
+    for (auto &item : items) {
+      if (!item.can_send(rights)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -1794,6 +1812,10 @@ class WebPageBlockAnimation final : public WebPageBlock {
     caption.for_each_rich_text(recurse_text, callback);
   }
 
+  bool can_send(const RestrictedRights &rights) const final {
+    return rights.can_send_animations();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockAnimation>(animation_file_id, caption.clone(), need_autoplay);
   }
@@ -1884,6 +1906,10 @@ class WebPageBlockPhoto final : public WebPageBlock {
     caption.for_each_rich_text(recurse_text, callback);
   }
 
+  bool can_send(const RestrictedRights &rights) const final {
+    return rights.can_send_photos();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockPhoto>(Photo(photo), caption.clone(), string(url), web_page_id, has_spoiler);
   }
@@ -1964,6 +1990,10 @@ class WebPageBlockVideo final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     caption.for_each_rich_text(recurse_text, callback);
+  }
+
+  bool can_send(const RestrictedRights &rights) const final {
+    return rights.can_send_videos();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -2050,6 +2080,10 @@ class WebPageBlockCover final : public WebPageBlock {
     cover->for_each_rich_text(recurse_text, callback);
   }
 
+  bool can_send(const RestrictedRights &rights) const final {
+    return cover->can_send(rights);
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockCover>(cover->clone());
   }
@@ -2112,6 +2146,10 @@ class WebPageBlockEmbedded final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     caption.for_each_rich_text(recurse_text, callback);
+  }
+
+  bool can_send(const RestrictedRights &rights) const final {
+    return poster_photo.is_empty() || rights.can_send_photos();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -2208,6 +2246,10 @@ class WebPageBlockEmbeddedPost final : public WebPageBlock {
     caption.for_each_rich_text(recurse_text, callback);
   }
 
+  bool can_send(const RestrictedRights &rights) const final {
+    return author_photo.is_empty() || rights.can_send_photos();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockEmbeddedPost>(string(url), string(author), Photo(author_photo), date,
                                                      clone_web_page_blocks(page_blocks), caption.clone());
@@ -2282,6 +2324,15 @@ class WebPageBlockCollage final : public WebPageBlock {
     caption.for_each_rich_text(recurse_text, callback);
   }
 
+  bool can_send(const RestrictedRights &rights) const final {
+    for (const auto &page_block : page_blocks) {
+      if (!page_block->can_send(rights)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockCollage>(clone_web_page_blocks(page_blocks), caption.clone());
   }
@@ -2343,6 +2394,15 @@ class WebPageBlockSlideshow final : public WebPageBlock {
       page_block->for_each_rich_text(recurse_text, callback);
     }
     caption.for_each_rich_text(recurse_text, callback);
+  }
+
+  bool can_send(const RestrictedRights &rights) const final {
+    for (const auto &page_block : page_blocks) {
+      if (!page_block->can_send(rights)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -2518,6 +2578,10 @@ class WebPageBlockAudio final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     caption.for_each_rich_text(recurse_text, callback);
+  }
+
+  bool can_send(const RestrictedRights &rights) const final {
+    return rights.can_send_audios();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -2700,6 +2764,15 @@ class WebPageBlockDetails final : public WebPageBlock {
     }
   }
 
+  bool can_send(const RestrictedRights &rights) const final {
+    for (const auto &page_block : page_blocks) {
+      if (!page_block->can_send(rights)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockDetails>(header.clone(), clone_web_page_blocks(page_blocks), is_open);
   }
@@ -2767,6 +2840,15 @@ class WebPageBlockBlockQuoteBlocks final : public WebPageBlock {
       page_block->for_each_rich_text(recurse_text, callback);
     }
     caption.for_each_rich_text(recurse_text, callback);
+  }
+
+  bool can_send(const RestrictedRights &rights) const final {
+    for (const auto &page_block : page_blocks) {
+      if (!page_block->can_send(rights)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -2953,6 +3035,10 @@ class WebPageBlockVoiceNote final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     caption.for_each_rich_text(recurse_text, callback);
+  }
+
+  bool can_send(const RestrictedRights &rights) const final {
+    return rights.can_send_voice_notes();
   }
 
   unique_ptr<WebPageBlock> clone() const final {

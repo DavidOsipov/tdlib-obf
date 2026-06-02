@@ -6,6 +6,7 @@
 //
 #pragma once
 
+#include "td/telegram/DialogParticipant.h"
 #include "td/telegram/files/FileId.h"
 #include "td/telegram/logevent/LogEvent.h"
 #include "td/telegram/Photo.h"
@@ -110,6 +111,10 @@ class WebPageBlock {
   bool has_bot_commands() const;
 
   vector<string> get_hashtags() const;
+
+  virtual bool can_send(const RestrictedRights &rights) const {
+    return true;
+  }
 
   virtual unique_ptr<WebPageBlock> clone() const = 0;
 
