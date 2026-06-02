@@ -3756,6 +3756,7 @@ vector<string> WebPageBlock::get_hashtags() const {
   });
   return result;
 }
+
 template <class F>
 void WebPageBlock::call_impl(Type type, const WebPageBlock *ptr, F &&f) {
   switch (type) {
