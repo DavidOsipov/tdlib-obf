@@ -98,9 +98,16 @@ class WebPageBlock {
 
   virtual void add_dependencies(Dependencies &dependencies) const = 0;
 
-  virtual void for_each_rich_text(const std::function<void(const RichText *text)> &callback) const = 0;
+  virtual void for_each_rich_text(bool recurse_text,
+                                  const std::function<void(const RichText *text)> &callback) const = 0;
 
   void for_each_text(const std::function<void(Slice text)> &callback) const;
+
+  void append_user_ids(vector<UserId> &user_ids) const;
+
+  bool has_bot_commands() const;
+
+  vector<string> get_hashtags() const;
 
   virtual td_api::object_ptr<td_api::PageBlock> get_page_block_object(Context *context) const = 0;
 
