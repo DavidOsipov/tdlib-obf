@@ -1727,8 +1727,9 @@ class WebPageBlockList final : public WebPageBlock {
                                                               get_page_blocks_object(page_blocks, context),
                                                               has_checkbox, has_checkbox && is_checked, 0, string());
       }
-      return td_api::make_object<td_api::pageBlockListItem>(label, get_page_blocks_object(page_blocks, context),
-                                                            has_checkbox, has_checkbox && is_checked, value, type);
+      return td_api::make_object<td_api::pageBlockListItem>(
+          label, get_page_blocks_object(page_blocks, context), has_checkbox, has_checkbox && is_checked, value,
+          (type.size() != 1u || Slice("aAiI1").find(type[0]) == Slice::npos) ? "1" : type);
     }
 
     template <class StorerT>
