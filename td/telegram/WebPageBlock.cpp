@@ -28,6 +28,7 @@
 #include "td/telegram/FormattedDate.hpp"
 #include "td/telegram/LinkManager.h"
 #include "td/telegram/Location.h"
+#include "td/telegram/MessageSearchFilter.h"
 #include "td/telegram/PeerColor.h"
 #include "td/telegram/Photo.h"
 #include "td/telegram/Photo.hpp"
@@ -143,10 +144,6 @@ class RichText {
     return type == Type::Plain && content.empty();
   }
 
-  RichText clone() const {
-    return *this;
-  }
-
   void append_file_ids(const Td *td, vector<FileId> &file_ids) const {
     if (type == RichText::Type::Icon) {
       CHECK(document_file_id.is_valid());
@@ -184,6 +181,22 @@ class RichText {
       }
     });
     return result;
+  }
+
+  int32 get_index_mask() const {
+    switch (type) {
+      case Type::Url:
+      case Type::AutoUrl:
+      case Type::EmailAddress:
+      case Type::AutoEmailAddress:
+        return message_search_filter_index_mask(MessageSearchFilter::Url);
+      default:
+        return 0;
+    }
+  }
+
+  RichText clone() const {
+    return *this;
   }
 
   telegram_api::object_ptr<telegram_api::RichText> get_input_rich_text(
@@ -478,6 +491,10 @@ class WebPageBlockCaption {
     credit.for_each_rich_text(recurse_text, callback);
   }
 
+  int32 get_index_mask() const {
+    return text.get_index_mask() | credit.get_index_mask();
+  }
+
   WebPageBlockCaption clone() const {
     WebPageBlockCaption result;
     result.text = text.clone();
@@ -553,6 +570,12 @@ class WebPageBlockTableCell {
            lhs.align_center == rhs.align_center && lhs.align_right == rhs.align_right &&
            lhs.valign_top == rhs.valign_top && lhs.valign_middle == rhs.valign_middle &&
            lhs.valign_bottom == rhs.valign_bottom && lhs.colspan == rhs.colspan && lhs.rowspan == rhs.rowspan;
+  }
+
+  int32 get_index_mask() const {
+    return text.get_index_mask();
+  }
+
   telegram_api::object_ptr<telegram_api::pageTableCell> get_input_page_table_cell(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const {
     int32 flags = telegram_api::pageTableCell::TEXT_MASK;
@@ -788,6 +811,10 @@ class WebPageBlockTitle final : public WebPageBlock {
     title.for_each_rich_text(recurse_text, callback);
   }
 
+  int32 get_index_mask() const final {
+    return title.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockTitle>(title.clone());
   }
@@ -842,6 +869,10 @@ class WebPageBlockSubtitle final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     subtitle.for_each_rich_text(recurse_text, callback);
+  }
+
+  int32 get_index_mask() const final {
+    return subtitle.get_index_mask();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -899,6 +930,10 @@ class WebPageBlockAuthorDate final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     author.for_each_rich_text(recurse_text, callback);
+  }
+
+  int32 get_index_mask() const final {
+    return author.get_index_mask();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -960,6 +995,10 @@ class WebPageBlockHeader final : public WebPageBlock {
     header.for_each_rich_text(recurse_text, callback);
   }
 
+  int32 get_index_mask() const final {
+    return header.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockHeader>(header.clone());
   }
@@ -1013,6 +1052,10 @@ class WebPageBlockSubheader final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     subheader.for_each_rich_text(recurse_text, callback);
+  }
+
+  int32 get_index_mask() const final {
+    return subheader.get_index_mask();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -1070,6 +1113,10 @@ class WebPageBlockHeading final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     text.for_each_rich_text(recurse_text, callback);
+  }
+
+  int32 get_index_mask() const final {
+    return text.get_index_mask();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -1151,6 +1198,10 @@ class WebPageBlockKicker final : public WebPageBlock {
     kicker.for_each_rich_text(recurse_text, callback);
   }
 
+  int32 get_index_mask() const final {
+    return kicker.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockKicker>(kicker.clone());
   }
@@ -1207,6 +1258,10 @@ class WebPageBlockParagraph final : public WebPageBlock {
     text.for_each_rich_text(recurse_text, callback);
   }
 
+  int32 get_index_mask() const final {
+    return text.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockParagraph>(text.clone());
   }
@@ -1261,6 +1316,10 @@ class WebPageBlockPreformatted final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     text.for_each_rich_text(recurse_text, callback);
+  }
+
+  int32 get_index_mask() const final {
+    return text.get_index_mask();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -1321,6 +1380,10 @@ class WebPageBlockFooter final : public WebPageBlock {
     footer.for_each_rich_text(recurse_text, callback);
   }
 
+  int32 get_index_mask() const final {
+    return footer.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockFooter>(footer.clone());
   }
@@ -1376,6 +1439,10 @@ class WebPageBlockThinking final : public WebPageBlock {
     text.for_each_rich_text(recurse_text, callback);
   }
 
+  int32 get_index_mask() const final {
+    return text.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockThinking>(text.clone());
   }
@@ -1426,6 +1493,10 @@ class WebPageBlockDivider final : public WebPageBlock {
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
   }
 
+  int32 get_index_mask() const final {
+    return 0;
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockDivider>();
   }
@@ -1472,6 +1543,10 @@ class WebPageBlockMath final : public WebPageBlock {
   }
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
+  }
+
+  int32 get_index_mask() const final {
+    return 0;
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -1530,12 +1605,18 @@ class WebPageBlockAnchor final : public WebPageBlock {
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
   }
 
+  int32 get_index_mask() const final {
+    return 0;
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockAnchor>(string(name));
   }
 
   friend bool operator==(const WebPageBlockAnchor &lhs, const WebPageBlockAnchor &rhs) {
     return lhs.name == rhs.name;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -1599,6 +1680,10 @@ class WebPageBlockList final : public WebPageBlock {
       return true;
     }
 
+    int32 get_index_mask() const {
+      return get_web_page_blocks_index_mask(page_blocks);
+    }
+
     Item clone() const {
       Item result;
       result.label = label;
@@ -1613,6 +1698,8 @@ class WebPageBlockList final : public WebPageBlock {
     friend bool operator==(const Item &lhs, const Item &rhs) {
       return lhs.label == rhs.label && lhs.page_blocks == rhs.page_blocks && lhs.has_checkbox == rhs.has_checkbox &&
              lhs.is_checked == rhs.is_checked && lhs.value == rhs.value && lhs.type == rhs.type;
+    }
+
     telegram_api::object_ptr<telegram_api::PageListItem> get_input_page_list_item(
         const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
         vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const {
@@ -1730,6 +1817,14 @@ class WebPageBlockList final : public WebPageBlock {
       }
     }
     return true;
+  }
+
+  int32 get_index_mask() const final {
+    int32 index_mask = 0;
+    for (const auto &item : items) {
+      index_mask |= item.get_index_mask();
+    }
+    return index_mask;
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -1856,12 +1951,18 @@ class WebPageBlockBlockQuote final : public WebPageBlock {
     credit.for_each_rich_text(recurse_text, callback);
   }
 
+  int32 get_index_mask() const final {
+    return text.get_index_mask() | credit.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockBlockQuote>(text.clone(), credit.clone());
   }
 
   friend bool operator==(const WebPageBlockBlockQuote &lhs, const WebPageBlockBlockQuote &rhs) {
     return lhs.text == rhs.text && lhs.credit == rhs.credit;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -1917,6 +2018,10 @@ class WebPageBlockPullQuote final : public WebPageBlock {
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     text.for_each_rich_text(recurse_text, callback);
     credit.for_each_rich_text(recurse_text, callback);
+  }
+
+  int32 get_index_mask() const final {
+    return text.get_index_mask() | credit.get_index_mask();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -1988,6 +2093,14 @@ class WebPageBlockAnimation final : public WebPageBlock {
 
   bool can_send(const RestrictedRights &rights) const final {
     return rights.can_send_animations();
+  }
+
+  int32 get_index_mask() const final {
+    int32 index_mask = caption.get_index_mask();
+    if (animation_file_id.is_valid()) {
+      return index_mask | message_search_filter_index_mask(MessageSearchFilter::Animation);
+    }
+    return index_mask;
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -2100,6 +2213,15 @@ class WebPageBlockPhoto final : public WebPageBlock {
     return rights.can_send_photos();
   }
 
+  int32 get_index_mask() const final {
+    int32 index_mask = caption.get_index_mask();
+    if (!photo.is_empty()) {
+      return index_mask | message_search_filter_index_mask(MessageSearchFilter::Photo) |
+             message_search_filter_index_mask(MessageSearchFilter::PhotoAndVideo);
+    }
+    return index_mask;
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockPhoto>(Photo(photo), caption.clone(), string(url), web_page_id, has_spoiler);
   }
@@ -2107,6 +2229,8 @@ class WebPageBlockPhoto final : public WebPageBlock {
   friend bool operator==(const WebPageBlockPhoto &lhs, const WebPageBlockPhoto &rhs) {
     return lhs.photo == rhs.photo && lhs.caption == rhs.caption && lhs.url == rhs.url &&
            lhs.web_page_id == rhs.web_page_id && lhs.has_spoiler == rhs.has_spoiler;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -2196,6 +2320,15 @@ class WebPageBlockVideo final : public WebPageBlock {
 
   bool can_send(const RestrictedRights &rights) const final {
     return rights.can_send_videos();
+  }
+
+  int32 get_index_mask() const final {
+    int32 index_mask = caption.get_index_mask();
+    if (video_file_id.is_valid()) {
+      return index_mask | message_search_filter_index_mask(MessageSearchFilter::Video) |
+             message_search_filter_index_mask(MessageSearchFilter::PhotoAndVideo);
+    }
+    return index_mask;
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -2301,6 +2434,10 @@ class WebPageBlockCover final : public WebPageBlock {
     return cover->can_send(rights);
   }
 
+  int32 get_index_mask() const final {
+    return cover->get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockCover>(cover->clone());
   }
@@ -2374,6 +2511,10 @@ class WebPageBlockEmbedded final : public WebPageBlock {
 
   bool can_send(const RestrictedRights &rights) const final {
     return poster_photo.is_empty() || rights.can_send_photos();
+  }
+
+  int32 get_index_mask() const final {
+    return caption.get_index_mask();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -2481,6 +2622,10 @@ class WebPageBlockEmbeddedPost final : public WebPageBlock {
     return author_photo.is_empty() || rights.can_send_photos();
   }
 
+  int32 get_index_mask() const final {
+    return caption.get_index_mask() | get_web_page_blocks_index_mask(page_blocks);
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockEmbeddedPost>(string(url), string(author), Photo(author_photo), date,
                                                      clone_web_page_blocks(page_blocks), caption.clone());
@@ -2489,6 +2634,8 @@ class WebPageBlockEmbeddedPost final : public WebPageBlock {
   friend bool operator==(const WebPageBlockEmbeddedPost &lhs, const WebPageBlockEmbeddedPost &rhs) {
     return lhs.url == rhs.url && lhs.author == rhs.author && lhs.author_photo == rhs.author_photo &&
            lhs.date == rhs.date && lhs.page_blocks == rhs.page_blocks && lhs.caption == rhs.caption;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -2569,12 +2716,18 @@ class WebPageBlockCollage final : public WebPageBlock {
     return true;
   }
 
+  int32 get_index_mask() const final {
+    return get_web_page_blocks_index_mask(page_blocks) | caption.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockCollage>(clone_web_page_blocks(page_blocks), caption.clone());
   }
 
   friend bool operator==(const WebPageBlockCollage &lhs, const WebPageBlockCollage &rhs) {
     return lhs.page_blocks == rhs.page_blocks && lhs.caption == rhs.caption;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -2646,12 +2799,18 @@ class WebPageBlockSlideshow final : public WebPageBlock {
     return true;
   }
 
+  int32 get_index_mask() const final {
+    return get_web_page_blocks_index_mask(page_blocks) | caption.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockSlideshow>(clone_web_page_blocks(page_blocks), caption.clone());
   }
 
   friend bool operator==(const WebPageBlockSlideshow &lhs, const WebPageBlockSlideshow &rhs) {
     return lhs.page_blocks == rhs.page_blocks && lhs.caption == rhs.caption;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -2711,6 +2870,10 @@ class WebPageBlockChatLink final : public WebPageBlock {
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
   }
 
+  int32 get_index_mask() const final {
+    return 0;
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockChatLink>(string(title), photo, string(username), accent_color_id, channel_id);
   }
@@ -2718,6 +2881,8 @@ class WebPageBlockChatLink final : public WebPageBlock {
   friend bool operator==(const WebPageBlockChatLink &lhs, const WebPageBlockChatLink &rhs) {
     return lhs.title == rhs.title && lhs.photo == rhs.photo && lhs.username == rhs.username &&
            lhs.accent_color_id == rhs.accent_color_id && lhs.channel_id == rhs.channel_id;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -2835,12 +3000,22 @@ class WebPageBlockAudio final : public WebPageBlock {
     return rights.can_send_audios();
   }
 
+  int32 get_index_mask() const final {
+    int32 index_mask = caption.get_index_mask();
+    if (audio_file_id.is_valid()) {
+      return index_mask | message_search_filter_index_mask(MessageSearchFilter::Audio);
+    }
+    return index_mask;
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockAudio>(audio_file_id, caption.clone());
   }
 
   friend bool operator==(const WebPageBlockAudio &lhs, const WebPageBlockAudio &rhs) {
     return lhs.audio_file_id == rhs.audio_file_id && lhs.caption == rhs.caption;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -2948,6 +3123,16 @@ class WebPageBlockTable final : public WebPageBlock {
     }
   }
 
+  int32 get_index_mask() const final {
+    int32 index_mask = title.get_index_mask();
+    for (auto &row : cells) {
+      for (auto &cell : row) {
+        index_mask |= cell.get_index_mask();
+      }
+    }
+    return index_mask;
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockTable>(title.clone(), vector<vector<WebPageBlockTableCell>>(cells), is_bordered,
                                               is_striped);
@@ -2956,6 +3141,8 @@ class WebPageBlockTable final : public WebPageBlock {
   friend bool operator==(const WebPageBlockTable &lhs, const WebPageBlockTable &rhs) {
     return lhs.title == rhs.title && lhs.cells == rhs.cells && lhs.is_bordered == rhs.is_bordered &&
            lhs.is_striped == rhs.is_striped;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -3045,12 +3232,18 @@ class WebPageBlockDetails final : public WebPageBlock {
     return true;
   }
 
+  int32 get_index_mask() const final {
+    return header.get_index_mask() | get_web_page_blocks_index_mask(page_blocks);
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockDetails>(header.clone(), clone_web_page_blocks(page_blocks), is_open);
   }
 
   friend bool operator==(const WebPageBlockDetails &lhs, const WebPageBlockDetails &rhs) {
     return lhs.header == rhs.header && lhs.page_blocks == rhs.page_blocks && lhs.is_open == rhs.is_open;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -3129,6 +3322,10 @@ class WebPageBlockBlockQuoteBlocks final : public WebPageBlock {
     return true;
   }
 
+  int32 get_index_mask() const final {
+    return get_web_page_blocks_index_mask(page_blocks) | caption.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockBlockQuoteBlocks>(clone_web_page_blocks(page_blocks), caption.clone());
   }
@@ -3203,12 +3400,18 @@ class WebPageBlockRelatedArticles final : public WebPageBlock {
     }
   }
 
+  int32 get_index_mask() const final {
+    return header.get_index_mask();
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockRelatedArticles>(header.clone(), vector<RelatedArticle>(related_articles));
   }
 
   friend bool operator==(const WebPageBlockRelatedArticles &lhs, const WebPageBlockRelatedArticles &rhs) {
     return lhs.header == rhs.header && lhs.related_articles == rhs.related_articles;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -3265,6 +3468,10 @@ class WebPageBlockMap final : public WebPageBlock {
 
   void for_each_rich_text(bool recurse_text, const std::function<void(const RichText *text)> &callback) const final {
     caption.for_each_rich_text(recurse_text, callback);
+  }
+
+  int32 get_index_mask() const final {
+    return caption.get_index_mask();
   }
 
   unique_ptr<WebPageBlock> clone() const final {
@@ -3339,12 +3546,23 @@ class WebPageBlockVoiceNote final : public WebPageBlock {
     return rights.can_send_voice_notes();
   }
 
+  int32 get_index_mask() const final {
+    int32 index_mask = caption.get_index_mask();
+    if (voice_note_file_id.is_valid()) {
+      return index_mask | message_search_filter_index_mask(MessageSearchFilter::VoiceNote) |
+             message_search_filter_index_mask(MessageSearchFilter::VoiceAndVideoNote);
+    }
+    return index_mask;
+  }
+
   unique_ptr<WebPageBlock> clone() const final {
     return td::make_unique<WebPageBlockVoiceNote>(voice_note_file_id, caption.clone());
   }
 
   friend bool operator==(const WebPageBlockVoiceNote &lhs, const WebPageBlockVoiceNote &rhs) {
     return lhs.voice_note_file_id == rhs.voice_note_file_id && lhs.caption == rhs.caption;
+  }
+
   telegram_api::object_ptr<telegram_api::PageBlock> get_input_page_block(
       const Td *td, vector<telegram_api::object_ptr<telegram_api::InputPhoto>> &photos,
       vector<telegram_api::object_ptr<telegram_api::InputDocument>> &documents) const final {
@@ -4307,6 +4525,14 @@ vector<unique_ptr<WebPageBlock>> get_web_page_blocks(
     }
   }
   return result;
+}
+
+int32 get_web_page_blocks_index_mask(const vector<unique_ptr<WebPageBlock>> &page_blocks) {
+  int32 index_mask = 0;
+  for (const auto &page_block : page_blocks) {
+    index_mask |= page_block->get_index_mask();
+  }
+  return index_mask;
 }
 
 vector<unique_ptr<WebPageBlock>> clone_web_page_blocks(const vector<unique_ptr<WebPageBlock>> &page_blocks) {
