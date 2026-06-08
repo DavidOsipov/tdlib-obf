@@ -4857,24 +4857,24 @@ static Result<InputMessageContent> create_input_message_content(
 
       Photo cover;
       if (!is_secret && self_destruct_type == nullptr) {
-        TRY_RESULT(cover_file_id, td->file_manager_->get_input_file_id(FileType::Photo, input_video->cover_, dialog_id,
-                                                                       true, is_secret, false));
+        TRY_RESULT(cover_file_id, td->file_manager_->get_input_file_id(FileType::Photo, input_video->video_->cover_,
+                                                                       dialog_id, true, is_secret, false));
         if (cover_file_id.is_valid()) {
           TRY_RESULT_ASSIGN(cover, create_photo(td->file_manager_.get(), cover_file_id, PhotoSize(),
-                                                input_video->width_, input_video->height_, Auto()));
+                                                input_video->video_->width_, input_video->video_->height_, Auto()));
         }
       }
 
       bool has_stickers = !sticker_file_ids.empty();
-      td->videos_manager_->create_video(file_id, string(), std::move(thumbnail), AnimationSize(), has_stickers,
-                                        std::move(sticker_file_ids), std::move(file_name), std::move(mime_type),
-                                        input_video->duration_, input_video->duration_,
-                                        get_dimensions(input_video->width_, input_video->height_, nullptr),
-                                        input_video->supports_streaming_, false, 0, 0.0, string(), false);
+      td->videos_manager_->create_video(
+          file_id, string(), std::move(thumbnail), AnimationSize(), has_stickers, std::move(sticker_file_ids),
+          std::move(file_name), std::move(mime_type), input_video->video_->duration_, input_video->video_->duration_,
+          get_dimensions(input_video->video_->width_, input_video->video_->height_, nullptr),
+          input_video->video_->supports_streaming_, false, 0, 0.0, string(), false);
 
-      content = td::make_unique<MessageVideo>(file_id, vector<FileId>(), vector<FileId>(), vector<FileId>(),
-                                              vector<FileId>(), std::move(cover), max(0, input_video->start_timestamp_),
-                                              std::move(caption), input_video->has_spoiler_ && !is_secret);
+      content = td::make_unique<MessageVideo>(
+          file_id, vector<FileId>(), vector<FileId>(), vector<FileId>(), vector<FileId>(), std::move(cover),
+          max(0, input_video->video_->start_timestamp_), std::move(caption), input_video->has_spoiler_ && !is_secret);
       break;
     }
     case td_api::inputMessageVideoNote::ID: {
@@ -5125,11 +5125,15 @@ Result<InputMessageContent> get_input_message_content(
     }
     case td_api::inputMessageVideo::ID: {
       auto input_message = static_cast<td_api::inputMessageVideo *>(input_message_content.get());
+      auto *video = input_message->video_.get();
+      if (video == nullptr) {
+        return Status::Error(400, "Video must be non-empty");
+      }
       file_type = input_message->self_destruct_type_ != nullptr ? FileType::SelfDestructingVideo : FileType::Video;
-      input_file = std::move(input_message->video_);
-      input_thumbnail = std::move(input_message->thumbnail_);
-      if (!input_message->added_sticker_file_ids_.empty()) {
-        sticker_file_ids = td->stickers_manager_->get_attached_sticker_file_ids(input_message->added_sticker_file_ids_);
+      input_file = std::move(video->video_);
+      input_thumbnail = std::move(video->thumbnail_);
+      if (!video->added_sticker_file_ids_.empty()) {
+        sticker_file_ids = td->stickers_manager_->get_attached_sticker_file_ids(video->added_sticker_file_ids_);
       }
       break;
     }
