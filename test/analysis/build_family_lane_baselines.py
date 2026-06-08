@@ -698,10 +698,13 @@ _ALL_STATUS_NAMES = tuple(name for name, _ in _EXACT_STATUS_FIELDS) + (
 
 def _exact_field_status(invariants: dict[str, Any], key: str) -> str:
     # `_merge_exact_invariants` collapses disagreeing samples to an empty list and
-    # records "mixed_values"; an agreed non-empty list is exact; anything else is
-    # unavailable. Exact agreement on an *empty* list is still no evidence.
+    # records "mixed_values". For an authoritative multi-browser family that
+    # divergence is a legitimate membership *catalog* (generated output must be one
+    # of the observed values), not an irreconcilable split: divergence maps to
+    # Catalog, unanimous non-empty agreement to Exact, and no/empty evidence to
+    # Unavailable.
     if invariants.get("collapse_reasons", {}).get(key) == "mixed_values":
-        return "Mixed"
+        return "Catalog"
     return "Exact" if invariants.get(key) else "Unavailable"
 
 
