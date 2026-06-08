@@ -148,6 +148,14 @@ def _sample_wire_length(sample: dict[str, Any]) -> int:
     return 0
 
 
+def _sample_record_length(sample: dict[str, Any]) -> int:
+    return int(sample["record_length"]) if "record_length" in sample else 0
+
+
+def _sample_handshake_length(sample: dict[str, Any]) -> int:
+    return int(sample["handshake_length"]) if "handshake_length" in sample else 0
+
+
 def _sample_ech_present(sample: dict[str, Any]) -> bool:
     ech = sample.get("ech") or {}
     if ech.get("payload_length") is not None:
@@ -360,6 +368,21 @@ namespace baselines {
 
 enum class TierLevel : int { Tier0 = 0, Tier1 = 1, Tier2 = 2, Tier3 = 3, Tier4 = 4 };
 
+// Per-field reviewed-evidence availability. Release-facing similarity gates must
+// fail closed on Unavailable and Mixed; Exact/Catalog/Policy are enforceable.
+enum class EvidenceFieldStatus : uint8 {
+  Unavailable = 0,
+  Exact = 1,
+  Catalog = 2,
+  Policy = 3,
+  Mixed = 4,
+};
+
+struct ExtensionCountBucket final {
+  size_t count{0};
+  size_t observed_samples{0};
+};
+
 struct ExactInvariants final {
   Slice family_id;
   Slice route_lane;
@@ -395,6 +418,20 @@ struct FamilyLaneBaseline final {
     bool stale_over_180_days;
   ExactInvariants invariants;
   SetMembershipCatalog set_catalog;
+  EvidenceFieldStatus non_grease_cipher_suites_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus non_grease_extension_set_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus non_grease_supported_groups_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus non_grease_supported_versions_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus alpn_protocols_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus compress_cert_algorithms_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus extension_order_templates_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus wire_lengths_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus ech_payload_lengths_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus alps_types_status{EvidenceFieldStatus::Unavailable};
+  EvidenceFieldStatus non_grease_extension_count_histogram_status{EvidenceFieldStatus::Unavailable};
+  vector<ExtensionCountBucket> non_grease_extension_count_histogram;
+  vector<size_t> observed_handshake_lengths;
+  vector<size_t> observed_record_lengths;
 };
 
 const FamilyLaneBaseline *get_baseline(Slice family_id, Slice route_lane);
@@ -627,10 +664,85 @@ def _materialize_fail_closed_route_lanes(baselines: list[dict[str, Any]]) -> lis
                 "invariants": fc_invariants,
                 "set_catalog": _synthetic_fail_closed_catalog(),
                 "cohort_id": fc_cohort_id,
+                "statuses": _unavailable_statuses(),
+                "extension_count_histogram": [],
+                "record_lengths": [],
+                "handshake_lengths": [],
             })
 
     augmented.sort(key=lambda entry: (str(entry["family_id"]), str(entry["route_lane"])))
     return augmented
+
+
+# ---------------------------------------------------------------------------
+# Per-field evidence availability (consumed by release-facing C++ gates)
+# ---------------------------------------------------------------------------
+
+_EXACT_STATUS_FIELDS = (
+    ("non_grease_cipher_suites_status", "cipher_suites"),
+    ("non_grease_extension_set_status", "extension_set"),
+    ("non_grease_supported_groups_status", "supported_groups"),
+    ("non_grease_supported_versions_status", "supported_versions"),
+    ("alpn_protocols_status", "alpn_protocols"),
+    ("compress_cert_algorithms_status", "compress_algos"),
+)
+
+_ALL_STATUS_NAMES = tuple(name for name, _ in _EXACT_STATUS_FIELDS) + (
+    "extension_order_templates_status",
+    "wire_lengths_status",
+    "ech_payload_lengths_status",
+    "alps_types_status",
+    "non_grease_extension_count_histogram_status",
+)
+
+
+def _exact_field_status(invariants: dict[str, Any], key: str) -> str:
+    # `_merge_exact_invariants` collapses disagreeing samples to an empty list and
+    # records "mixed_values"; an agreed non-empty list is exact; anything else is
+    # unavailable. Exact agreement on an *empty* list is still no evidence.
+    if invariants.get("collapse_reasons", {}).get(key) == "mixed_values":
+        return "Mixed"
+    return "Exact" if invariants.get(key) else "Unavailable"
+
+
+def _catalog_field_status(values: list[Any]) -> str:
+    return "Catalog" if values else "Unavailable"
+
+
+def _build_extension_count_histogram(group: list[dict[str, Any]]) -> list[dict[str, int]]:
+    counts: dict[int, int] = {}
+    for entry in group:
+        count = len(_sample_non_grease_extension_order(entry["sample"]))
+        counts[count] = counts.get(count, 0) + 1
+    return [{"count": count, "observed_samples": counts[count]} for count in sorted(counts)]
+
+
+def _collect_unique_lengths(group: list[dict[str, Any]], accessor: Any) -> list[int]:
+    seen: set[int] = set()
+    result: list[int] = []
+    for entry in group:
+        value = accessor(entry["sample"])
+        if value and value not in seen:
+            seen.add(value)
+            result.append(value)
+    result.sort()
+    return result
+
+
+def _evidence_statuses(
+    invariants: dict[str, Any], catalog: dict[str, Any], histogram: list[dict[str, int]]
+) -> dict[str, str]:
+    statuses = {name: _exact_field_status(invariants, key) for name, key in _EXACT_STATUS_FIELDS}
+    statuses["extension_order_templates_status"] = _catalog_field_status(catalog["extension_order_templates"])
+    statuses["wire_lengths_status"] = _catalog_field_status(catalog["wire_lengths"])
+    statuses["ech_payload_lengths_status"] = _catalog_field_status(catalog["ech_payload_lengths"])
+    statuses["alps_types_status"] = _catalog_field_status(catalog["alps_types"])
+    statuses["non_grease_extension_count_histogram_status"] = _catalog_field_status(histogram)
+    return statuses
+
+
+def _unavailable_statuses() -> dict[str, str]:
+    return {name: "Unavailable" for name in _ALL_STATUS_NAMES}
 
 
 def build_baselines(samples: list[dict[str, Any]], now_utc: str | None = None) -> list[dict[str, Any]]:
@@ -644,6 +756,10 @@ def build_baselines(samples: list[dict[str, Any]], now_utc: str | None = None) -
     for (family_id, route_lane), group in sorted(grouped.items()):
         invariants = _merge_exact_invariants(group)
         catalog = _build_set_catalog(group)
+        histogram = _build_extension_count_histogram(group)
+        record_lengths = _collect_unique_lengths(group, _sample_record_length)
+        handshake_lengths = _collect_unique_lengths(group, _sample_handshake_length)
+        statuses = _evidence_statuses(invariants, catalog, histogram)
         authoritative_group = [entry for entry in group if _is_authoritative_entry(entry)]
         sources = {_source_identity(entry) for entry in authoritative_group}
         sessions = {_session_identity(entry) for entry in authoritative_group}
@@ -682,6 +798,10 @@ def build_baselines(samples: list[dict[str, Any]], now_utc: str | None = None) -
             "invariants": invariants,
             "set_catalog": catalog,
             "cohort_id": cohort_id,
+            "statuses": statuses,
+            "extension_count_histogram": histogram,
+            "record_lengths": record_lengths,
+            "handshake_lengths": handshake_lengths,
         })
     return _materialize_fail_closed_route_lanes(baselines)
 
@@ -835,6 +955,19 @@ def render_header(baselines: list[dict[str, Any]]) -> str:
         lines.append(
             f"inline const vector<uint16> {prefix}ObservedAlpsTypes = {_cpp_u16_list(cat['alps_types'])};"
         )
+        histogram_inits = ", ".join(
+            "{" + f"{bucket['count']}u, {bucket['observed_samples']}u" + "}"
+            for bucket in baseline["extension_count_histogram"]
+        )
+        lines.append(
+            f"inline const vector<ExtensionCountBucket> {prefix}ExtensionCountHistogram = {{{histogram_inits}}};"
+        )
+        lines.append(
+            f"inline const vector<size_t> {prefix}ObservedHandshakeLengths = {_cpp_size_list(baseline['handshake_lengths'])};"
+        )
+        lines.append(
+            f"inline const vector<size_t> {prefix}ObservedRecordLengths = {_cpp_size_list(baseline['record_lengths'])};"
+        )
         lines.append("")
         var_names.append(prefix)
 
@@ -884,6 +1017,19 @@ def render_header(baselines: list[dict[str, Any]]) -> str:
         )
         lines.append(
             f"      b.set_catalog.observed_alps_types = {prefix}ObservedAlpsTypes;"
+        )
+        for status_name in _ALL_STATUS_NAMES:
+            lines.append(
+                f"      b.{status_name} = EvidenceFieldStatus::{baseline['statuses'][status_name]};"
+            )
+        lines.append(
+            f"      b.non_grease_extension_count_histogram = {prefix}ExtensionCountHistogram;"
+        )
+        lines.append(
+            f"      b.observed_handshake_lengths = {prefix}ObservedHandshakeLengths;"
+        )
+        lines.append(
+            f"      b.observed_record_lengths = {prefix}ObservedRecordLengths;"
         )
         lines.append("      t.push_back(std::move(b));")
         lines.append("    }")
@@ -949,6 +1095,11 @@ def generate_for(input_dir: pathlib.Path, output_path: pathlib.Path) -> str:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(rendered, encoding="utf-8", newline="\n")
     return rendered
+
+
+def generate_family_lane_baselines_for_tests(fixtures_root: pathlib.Path, output_path: pathlib.Path) -> str:
+    """Generate the reviewed baseline header from a fixtures directory (test helper)."""
+    return generate_for(fixtures_root, output_path)
 
 
 class _DeterminismSelfTest(unittest.TestCase):

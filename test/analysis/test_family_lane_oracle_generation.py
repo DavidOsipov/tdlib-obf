@@ -186,3 +186,37 @@ class FamilyLaneOracleGenerationTest(unittest.TestCase):
             ],
             lane["fields"]["non_grease_cipher_suites_ordered"]["observed_values"],
         )
+
+    def test_generated_cpp_contains_field_status_symbols(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = pathlib.Path(temp_dir)
+            fixtures = root / "fixtures"
+            fixtures.mkdir()
+            output = root / "ReviewedFamilyLaneBaselines.h"
+            (fixtures / "chrome.clienthello.json").write_text(
+                json.dumps(
+                    artifact(
+                        profile_id="chrome146_177_linux_desktop",
+                        fixture_id="chrome146_177_linux_desktop:frame5",
+                        source_sha256="e" * 64,
+                        extensions=["0x0000", "0x002B", "0x0010", "0xFE0D", "0x44CD"],
+                        cipher_suites=["0x1301", "0x1302"],
+                        supported_groups=["0x11EC", "0x001D"],
+                        supported_versions=["0x0304", "0x0303"],
+                        record_length=1800,
+                        handshake_length=1795,
+                        ech_payload_length=176,
+                    )
+                ),
+                encoding="utf-8",
+            )
+
+            baselines.generate_family_lane_baselines_for_tests(fixtures, output)
+            text = output.read_text(encoding="utf-8")
+
+        self.assertIn("enum class EvidenceFieldStatus", text)
+        self.assertIn("non_grease_cipher_suites_status", text)
+        self.assertIn("non_grease_extension_set_status", text)
+        self.assertIn("non_grease_extension_count_histogram", text)
+        self.assertIn("observed_handshake_lengths", text)
+        self.assertIn("observed_record_lengths", text)
