@@ -686,6 +686,106 @@ def build_baselines(samples: list[dict[str, Any]], now_utc: str | None = None) -
     return _materialize_fail_closed_route_lanes(baselines)
 
 
+# ---------------------------------------------------------------------------
+# Fixture-derived similarity oracle
+#
+# Separate, release-facing view over the reviewed fixtures. Unlike the baseline
+# table (which collapses mixed exact fields to the empty list), the oracle keeps
+# every field's evidence status explicit: ``exact``, ``mixed``, ``catalog`` or
+# ``unavailable``. Runtime similarity gates consume this view so that missing or
+# mixed reviewed evidence fails closed instead of silently passing.
+# ---------------------------------------------------------------------------
+
+
+def _oracle_field_status(values: list[Any]) -> dict[str, Any]:
+    """Exact-or-mixed status for a release-critical field.
+
+    ``unavailable`` when no sample carries the field, ``exact`` when every
+    sample agrees, ``mixed`` (with the distinct observed values) otherwise.
+    """
+    if not values:
+        return {"status": "unavailable", "value": None}
+    unique: list[Any] = []
+    for value in values:
+        if value not in unique:
+            unique.append(value)
+    if len(unique) == 1:
+        return {"status": "exact", "value": unique[0]}
+    return {"status": "mixed", "observed_values": unique}
+
+
+def _oracle_catalog_status(values: list[Any]) -> dict[str, Any]:
+    """Sorted-unique catalog for a multi-valued field (``unavailable`` if empty)."""
+    if not values:
+        return {"status": "unavailable", "value": []}
+    unique: list[Any] = []
+    for value in values:
+        if value not in unique:
+            unique.append(value)
+    return {"status": "catalog", "value": sorted(unique)}
+
+
+def _oracle_histogram_status(values: list[int]) -> dict[str, Any]:
+    """Count histogram keyed by stringified value (``unavailable`` if empty)."""
+    if not values:
+        return {"status": "unavailable", "value": {}}
+    histogram: dict[str, int] = {}
+    for value in values:
+        histogram[str(value)] = histogram.get(str(value), 0) + 1
+    return {"status": "catalog", "value": dict(sorted(histogram.items()))}
+
+
+def build_family_lane_oracle(samples: list[dict[str, Any]]) -> dict[tuple[str, str], dict]:
+    """Build the fixture-derived oracle keyed by ``(family_id, route_lane)``.
+
+    ``samples`` are the flattened entries returned by :func:`load_samples`. Field
+    values are read as the reviewed fixtures store them (e.g. hex strings such as
+    ``"0x1301"``) so the oracle reflects observed evidence verbatim.
+    """
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for entry in samples:
+        key = (str(entry["family_id"]), str(entry["route_lane"]))
+        grouped.setdefault(key, []).append(entry)
+
+    oracle: dict[tuple[str, str], dict] = {}
+    for key, group in grouped.items():
+        cipher_values: list[list[str]] = []
+        extension_set_values: list[list[str]] = []
+        extension_counts: list[int] = []
+        record_lengths: list[int] = []
+        handshake_lengths: list[int] = []
+        ech_payload_lengths: list[int] = []
+        for entry in group:
+            sample = entry["sample"]
+            cipher_values.append(list(sample.get("non_grease_cipher_suites", [])))
+            extensions = list(sample.get("non_grease_extensions_without_padding", []))
+            # Extension *set* equality ignores order: a cohort whose samples share
+            # the same extensions but shuffle them stays ``exact``.
+            extension_set_values.append(sorted(set(extensions)))
+            extension_counts.append(len(extensions))
+            record_lengths.append(int(sample["record_length"]))
+            handshake_lengths.append(int(sample["handshake_length"]))
+            ech = sample.get("ech")
+            if isinstance(ech, dict) and ech.get("payload_length") is not None:
+                ech_payload_lengths.append(int(ech["payload_length"]))
+        oracle[key] = {
+            "fields": {
+                "non_grease_cipher_suites_ordered": _oracle_field_status(cipher_values),
+                "non_grease_extension_set": _oracle_field_status(extension_set_values),
+                "non_grease_extension_count_histogram": _oracle_histogram_status(extension_counts),
+                "record_lengths": _oracle_catalog_status(record_lengths),
+                "handshake_lengths": _oracle_catalog_status(handshake_lengths),
+                "ech_payload_lengths": _oracle_catalog_status(ech_payload_lengths),
+            },
+        }
+    return oracle
+
+
+def build_family_lane_oracle_for_tests(fixtures_root: pathlib.Path) -> dict[tuple[str, str], dict]:
+    """Convenience wrapper: load reviewed fixtures and build the oracle."""
+    return build_family_lane_oracle(load_samples(fixtures_root))
+
+
 def render_header(baselines: list[dict[str, Any]]) -> str:
     lines: list[str] = [HEADER_PROLOGUE.rstrip(), ""]
 
