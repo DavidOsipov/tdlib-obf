@@ -5606,10 +5606,18 @@ inputThumbnail thumbnail:InputFile width:int32 height:int32 = InputThumbnail;
 //@animation Animation file to be sent
 //@thumbnail Animation thumbnail; pass null to skip thumbnail uploading
 //@added_sticker_file_ids File identifiers of the stickers added to the animation, if applicable
-//@duration Duration of the animation, in seconds
+//@duration Duration of the animation, in seconds; may be replaced by the server
 //@width Width of the animation; may be replaced by the server
 //@height Height of the animation; may be replaced by the server
 inputAnimation animation:InputFile thumbnail:inputThumbnail added_sticker_file_ids:vector<int32> duration:int32 width:int32 height:int32 = InputAnimation;
+
+//@description An audio to be sent
+//@audio Audio file to be sent
+//@album_cover_thumbnail Thumbnail of the cover for the album; pass null to skip thumbnail uploading
+//@duration Duration of the audio, in seconds; may be replaced by the server
+//@title Title of the audio; 0-64 characters; may be replaced by the server
+//@performer Performer of the audio; 0-64 characters, may be replaced by the server
+inputAudio audio:InputFile album_cover_thumbnail:inputThumbnail duration:int32 title:string performer:string = InputAudio;
 
 
 //@class InputPaidMediaType @description Describes type of paid media to sent
@@ -5705,13 +5713,9 @@ inputMessageRichMessage message:inputRichMessage clear_draft:Bool = InputMessage
 inputMessageAnimation animation:inputAnimation caption:formattedText show_caption_above_media:Bool has_spoiler:Bool = InputMessageContent;
 
 //@description An audio message
-//@audio Audio file to be sent
-//@album_cover_thumbnail Thumbnail of the cover for the album; pass null to skip thumbnail uploading
-//@duration Duration of the audio, in seconds; may be replaced by the server
-//@title Title of the audio; 0-64 characters; may be replaced by the server
-//@performer Performer of the audio; 0-64 characters, may be replaced by the server
+//@audio Audio to be sent
 //@caption Audio caption; pass null to use an empty caption; 0-getOption("message_caption_length_max") characters
-inputMessageAudio audio:InputFile album_cover_thumbnail:inputThumbnail duration:int32 title:string performer:string caption:formattedText = InputMessageContent;
+inputMessageAudio audio:inputAudio caption:formattedText = InputMessageContent;
 
 //@description A document message (general file)
 //@document Document to be sent

@@ -4740,16 +4740,17 @@ static Result<InputMessageContent> create_input_message_content(
     case td_api::inputMessageAudio::ID: {
       auto input_audio = static_cast<td_api::inputMessageAudio *>(input_message_content.get());
 
-      if (!clean_input_string(input_audio->title_)) {
+      if (!clean_input_string(input_audio->audio_->title_)) {
         return Status::Error(400, "Audio title must be encoded in UTF-8");
       }
-      if (!clean_input_string(input_audio->performer_)) {
+      if (!clean_input_string(input_audio->audio_->performer_)) {
         return Status::Error(400, "Audio performer must be encoded in UTF-8");
       }
 
       td->audios_manager_->create_audio(file_id, string(), std::move(thumbnail), std::move(file_name),
-                                        std::move(mime_type), input_audio->duration_, std::move(input_audio->title_),
-                                        std::move(input_audio->performer_), 0, false);
+                                        std::move(mime_type), input_audio->audio_->duration_,
+                                        std::move(input_audio->audio_->title_),
+                                        std::move(input_audio->audio_->performer_), 0, false);
 
       content = make_unique<MessageAudio>(file_id, std::move(caption));
       break;
@@ -5077,9 +5078,13 @@ Result<InputMessageContent> get_input_message_content(
     }
     case td_api::inputMessageAudio::ID: {
       auto input_message = static_cast<td_api::inputMessageAudio *>(input_message_content.get());
+      auto *audio = input_message->audio_.get();
+      if (audio == nullptr) {
+        return Status::Error(400, "Audio must be non-empty");
+      }
       file_type = FileType::Audio;
-      input_file = std::move(input_message->audio_);
-      input_thumbnail = std::move(input_message->album_cover_thumbnail_);
+      input_file = std::move(audio->audio_);
+      input_thumbnail = std::move(audio->album_cover_thumbnail_);
       break;
     }
     case td_api::inputMessageDocument::ID: {
