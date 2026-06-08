@@ -976,6 +976,7 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_windows_chrome_stats.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_windows_firefox_stats.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_release_similarity_unavailable_fail_closed.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_generator_fixture_exact_fields_gate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_nightly_wire_baseline_monte_carlo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_nightly_boundary_falsification.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_nightly_cross_family_distance.cpp
