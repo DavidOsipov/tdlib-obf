@@ -5089,10 +5089,14 @@ Result<InputMessageContent> get_input_message_content(
     }
     case td_api::inputMessageDocument::ID: {
       auto input_message = static_cast<td_api::inputMessageDocument *>(input_message_content.get());
-      file_type = input_message->disable_content_type_detection_ ? FileType::DocumentAsFile : FileType::Document;
-      input_file = std::move(input_message->document_);
+      auto *document = input_message->document_.get();
+      if (document == nullptr) {
+        return Status::Error(400, "Document must be non-empty");
+      }
+      file_type = document->disable_content_type_detection_ ? FileType::DocumentAsFile : FileType::Document;
+      input_file = std::move(document->document_);
       allow_get_by_hash = true;
-      input_thumbnail = std::move(input_message->thumbnail_);
+      input_thumbnail = std::move(document->thumbnail_);
       break;
     }
     case td_api::inputMessagePhoto::ID: {
