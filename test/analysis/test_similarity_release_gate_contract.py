@@ -32,3 +32,14 @@ class SimilarityReleaseGateContract(unittest.TestCase):
             if "Baseline review still in progress" in text:
                 offenders.append(str(path.relative_to(REPO_ROOT)))
         self.assertEqual([], offenders)
+
+    def test_docs_separate_similarity_gates_from_seed_stress(self) -> None:
+        pipeline = (REPO_ROOT / "docs" / "Documentation" / "FINGERPRINT_GENERATION_PIPELINE.md").read_text(
+            encoding="utf-8"
+        )
+        lessons = (REPO_ROOT / "docs" / "Documentation" / "Lessons_Learnt.md").read_text(encoding="utf-8")
+        combined = pipeline + "\n" + lessons
+
+        self.assertIn("real-corpus similarity gate", combined)
+        self.assertIn("seed-stress diagnostic", combined)
+        self.assertIn("self-calibrated generator tests are not real-browser similarity evidence", combined)
