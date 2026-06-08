@@ -979,6 +979,7 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_generator_fixture_exact_fields_gate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_generator_extension_count_similarity.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_generator_wire_length_fixture_gate.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_generator_shuffle_similarity.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_nightly_wire_baseline_monte_carlo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_nightly_boundary_falsification.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_nightly_cross_family_distance.cpp
