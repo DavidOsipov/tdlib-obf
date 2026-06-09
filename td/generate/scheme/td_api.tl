@@ -4151,7 +4151,7 @@ pageBlockCollage blocks:vector<PageBlock> caption:pageBlockCaption = PageBlock;
 //@caption Block caption; may be null if none
 pageBlockSlideshow blocks:vector<PageBlock> caption:pageBlockCaption = PageBlock;
 
-//@description A link to a chat
+//@description A link to a chat; instant view only
 //@title Chat title
 //@photo Chat photo; may be null
 //@accent_color_id Identifier of the accent color for chat title and background of chat photo
