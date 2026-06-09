@@ -92,8 +92,8 @@ TEST(TLS_MultiDumpWindowsChromeStats, Chrome147WindowsExactInvariantsMatchWhenBa
   const auto *baseline = get_baseline(Slice("chromium_windows"), Slice("non_ru_egress"));
   ASSERT_TRUE(baseline != nullptr);
 
-  ASSERT_NE(EvidenceFieldStatus::Unavailable, baseline->non_grease_cipher_suites_status);
-  ASSERT_NE(EvidenceFieldStatus::Mixed, baseline->non_grease_cipher_suites_status);
+  ASSERT_TRUE(baseline->non_grease_cipher_suites_status != EvidenceFieldStatus::Unavailable);
+  ASSERT_TRUE(baseline->non_grease_cipher_suites_status != EvidenceFieldStatus::Mixed);
 
   FamilyLaneMatcher matcher(*baseline);
   for (int seed = 0; seed < kSeedCount; seed++) {
@@ -319,8 +319,8 @@ TEST(TLS_MultiDumpWindowsChromeStats, WindowsChromeDoesNotLeakDesktopOsInTlsWire
   const auto *linux_baseline = get_baseline(Slice("chromium_linux_desktop"), Slice("non_ru_egress"));
   ASSERT_TRUE(linux_baseline != nullptr);
 
-  ASSERT_NE(EvidenceFieldStatus::Unavailable, linux_baseline->non_grease_cipher_suites_status);
-  ASSERT_NE(EvidenceFieldStatus::Mixed, linux_baseline->non_grease_cipher_suites_status);
+  ASSERT_TRUE(linux_baseline->non_grease_cipher_suites_status != EvidenceFieldStatus::Unavailable);
+  ASSERT_TRUE(linux_baseline->non_grease_cipher_suites_status != EvidenceFieldStatus::Mixed);
 
   MockRng rng(7);
   auto wire = build_tls_client_hello_for_profile("www.google.com", "0123456789secret", kUnixTime,
@@ -347,7 +347,7 @@ TEST(TLS_MultiDumpWindowsChromeStats, WindowsChromeWireLengthsMatchReviewedWindo
   const auto *baseline = get_baseline(Slice("chromium_windows"), Slice("non_ru_egress"));
   ASSERT_TRUE(baseline != nullptr);
 
-  ASSERT_NE(EvidenceFieldStatus::Unavailable, baseline->wire_lengths_status);
+  ASSERT_TRUE(baseline->wire_lengths_status != EvidenceFieldStatus::Unavailable);
   ASSERT_FALSE(baseline->set_catalog.observed_wire_lengths.empty());
 
   FamilyLaneMatcher matcher(*baseline);

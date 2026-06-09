@@ -32,9 +32,9 @@ TEST(TlsReleaseSimilarityUnavailableFailClosed, UnknownRouteLanesRemainUnavailab
   const auto *baseline = get_baseline(Slice("chromium_windows"), Slice("unknown"));
   ASSERT_TRUE(baseline != nullptr);
 
-  ASSERT_EQ(EvidenceFieldStatus::Unavailable, baseline->non_grease_cipher_suites_status);
-  ASSERT_EQ(EvidenceFieldStatus::Unavailable, baseline->non_grease_extension_set_status);
-  ASSERT_EQ(EvidenceFieldStatus::Unavailable, baseline->wire_lengths_status);
+  ASSERT_TRUE(baseline->non_grease_cipher_suites_status == EvidenceFieldStatus::Unavailable);
+  ASSERT_TRUE(baseline->non_grease_extension_set_status == EvidenceFieldStatus::Unavailable);
+  ASSERT_TRUE(baseline->wire_lengths_status == EvidenceFieldStatus::Unavailable);
 }
 
 }  // namespace

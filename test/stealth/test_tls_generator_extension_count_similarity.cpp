@@ -56,7 +56,7 @@ bool histogram_contains_count(const td::vector<ExtensionCountBucket> &histogram,
 void run_extension_count_gate(Slice family_id, BrowserProfile profile, EchMode ech_mode) {
   const auto *baseline = get_baseline(family_id, Slice("non_ru_egress"));
   ASSERT_TRUE(baseline != nullptr);
-  ASSERT_EQ(EvidenceFieldStatus::Catalog, baseline->non_grease_extension_count_histogram_status);
+  ASSERT_TRUE(baseline->non_grease_extension_count_histogram_status == EvidenceFieldStatus::Catalog);
   ASSERT_FALSE(baseline->non_grease_extension_count_histogram.empty());
 
   for (td::uint64 seed = 0; seed < kSeeds; seed++) {
