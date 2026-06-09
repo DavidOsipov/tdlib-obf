@@ -57,6 +57,9 @@ using td::mtproto::test::verifiers::ExtensionOrderVerifier;
 
 constexpr td::int32 kUnixTime = 1712345678;
 
+const Slice kChromiumLinuxDesktop("chromium_linux_desktop");
+const Slice kNonRuEgress("non_ru_egress");
+
 std::string order_key(const std::vector<td::uint16> &order) {
   std::string result;
   for (auto value : order) {
@@ -75,13 +78,13 @@ std::vector<td::uint16> sorted_unique(std::vector<td::uint16> values) {
 }
 
 TEST(TlsGeneratorShuffleSimilarity, ChromiumLinuxReviewedCorpusHasMultipleObservedTemplates) {
-  const auto *baseline = get_baseline(Slice("chromium_linux_desktop"), Slice("non_ru_egress"));
+  const auto *baseline = get_baseline(kChromiumLinuxDesktop, kNonRuEgress);
   ASSERT_TRUE(baseline != nullptr);
   ASSERT_TRUE(baseline->set_catalog.observed_extension_order_templates.size() > 1u);
 }
 
 TEST(TlsGeneratorShuffleSimilarity, Chrome133GeneratedOrdersAreLegalAndUseReviewedExtensionSet) {
-  const auto *baseline = get_baseline(Slice("chromium_linux_desktop"), Slice("non_ru_egress"));
+  const auto *baseline = get_baseline(kChromiumLinuxDesktop, kNonRuEgress);
   ASSERT_TRUE(baseline != nullptr);
 
   // Reviewed extension sets, one per observed order template (deduplicated).
@@ -93,7 +96,7 @@ TEST(TlsGeneratorShuffleSimilarity, Chrome133GeneratedOrdersAreLegalAndUseReview
     reviewed_sets.push_back(sorted_unique(templ));
   }
 
-  const auto &verifier = ExtensionOrderVerifier::get_for_family(Slice("chromium_linux_desktop"));
+  const auto &verifier = ExtensionOrderVerifier::get_for_family(kChromiumLinuxDesktop);
   std::set<std::string> distinct_orders;
   for (td::uint64 seed = 0; seed < 512; seed++) {
     MockRng rng(seed);
@@ -119,7 +122,7 @@ TEST(TlsGeneratorShuffleSimilarity, Chrome133GeneratedOrdersAreLegalAndUseReview
 }
 
 TEST(TlsGeneratorShuffleSimilarity, FixedOrderFamiliesMatchReviewedTemplateInsteadOfShufflePolicy) {
-  const auto *baseline = get_baseline(Slice("apple_ios_tls"), Slice("non_ru_egress"));
+  const auto *baseline = get_baseline(Slice("apple_ios_tls"), kNonRuEgress);
   ASSERT_TRUE(baseline != nullptr);
   ASSERT_EQ(1u, baseline->set_catalog.observed_extension_order_templates.size());
 
