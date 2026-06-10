@@ -2455,7 +2455,7 @@ supergroupMembersFilterBots = SupergroupMembersFilter;
 //@description The chat was joined successfully @chat_id Identifier of the chat
 chatJoinResultSuccess chat_id:int53 = ChatJoinResult;
 
-//@description A join request was sent and have to be approved by administrators of the chat
+//@description The join request was sent and have to be approved by administrators of the chat
 chatJoinResultRequestSent = ChatJoinResult;
 
 //@description An approval from a guard bot through a Web App is required to join the chat
@@ -2463,6 +2463,9 @@ chatJoinResultRequestSent = ChatJoinResult;
 //@url The URL of the Web App to open
 //@query_id Unique identifier of the join request, which will be used in updateChatJoinResult
 chatJoinResultGuardBotApprovalRequired bot_user_id:int53 url:webAppUrl query_id:int53 = ChatJoinResult;
+
+//@description The join was declined by the guard bot
+chatJoinResultDeclined = ChatJoinResult;
 
 
 //@class ChatJoinRequestResult @description Describes result of a chat join request
