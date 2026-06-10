@@ -2483,8 +2483,8 @@ class WebPageBlockTable final : public WebPageBlock {
           row, [&](const WebPageBlockTableCell &cell) { return cell.get_page_block_table_cell_object(context); });
     });
 
-    return td_api::make_object<td_api::pageBlockTable>(title.get_rich_text_object(context), std::move(cell_objects),
-                                                       is_bordered, is_striped);
+    return td_api::make_object<td_api::pageBlockTable>(title.get_rich_text_object(context, true),
+                                                       std::move(cell_objects), is_bordered, is_striped);
   }
 
   template <class StorerT>
