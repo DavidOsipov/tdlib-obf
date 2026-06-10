@@ -1601,7 +1601,8 @@ class WebPageBlockBlockQuote final : public WebPageBlock {
   td_api::object_ptr<td_api::PageBlock> get_page_block_object(Context *context) const final {
     vector<td_api::object_ptr<td_api::PageBlock>> blocks;
     blocks.push_back(td_api::make_object<td_api::pageBlockParagraph>(text.get_rich_text_object(context)));
-    return td_api::make_object<td_api::pageBlockBlockQuote>(std::move(blocks), credit.get_rich_text_object(context));
+    return td_api::make_object<td_api::pageBlockBlockQuote>(std::move(blocks),
+                                                            credit.get_rich_text_object(context, true));
   }
 
   template <class StorerT>
@@ -1653,7 +1654,7 @@ class WebPageBlockPullQuote final : public WebPageBlock {
 
   td_api::object_ptr<td_api::PageBlock> get_page_block_object(Context *context) const final {
     return td_api::make_object<td_api::pageBlockPullQuote>(text.get_rich_text_object(context),
-                                                           credit.get_rich_text_object(context));
+                                                           credit.get_rich_text_object(context, true));
   }
 
   template <class StorerT>
@@ -2629,7 +2630,7 @@ class WebPageBlockBlockQuoteBlocks final : public WebPageBlock {
 
   td_api::object_ptr<td_api::PageBlock> get_page_block_object(Context *context) const final {
     return td_api::make_object<td_api::pageBlockBlockQuote>(get_page_blocks_object(blocks, context),
-                                                            caption.get_rich_text_object(context));
+                                                            caption.get_rich_text_object(context, true));
   }
 
   template <class StorerT>
