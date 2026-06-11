@@ -56,6 +56,14 @@ struct SetMembershipCatalog final {
   vector<size_t> observed_wire_lengths;
   vector<uint16> observed_ech_payload_lengths;
   vector<uint16> observed_alps_types;
+  // Per-field observed-value catalogs. Populated for release-critical fields
+  // whose reviewed evidence status is Catalog (sources legitimately disagree,
+  // so there is no single exact invariant). A release gate must require the
+  // generated value to be a member of the corresponding catalog instead of
+  // skipping the field because its ExactInvariants entry is empty.
+  vector<vector<uint16>> observed_cipher_suite_sequences;
+  vector<vector<uint16>> observed_extension_sets;
+  vector<vector<uint16>> observed_supported_versions_sequences;
 };
 
 struct FamilyLaneBaseline final {
@@ -103,6 +111,9 @@ inline const vector<vector<uint16>> kandroid_chromium_non_ru_egressObservedExten
 inline const vector<size_t> kandroid_chromium_non_ru_egressObservedWireLengths = {1718u, 1730u, 1750u, 1762u, 1782u, 1794u, 1814u, 1826u, 1870u, 1882u, 1902u, 1914u, 1934u, 1946u, 1966u, 1978u};
 inline const vector<uint16> kandroid_chromium_non_ru_egressObservedEchPayloadLengths = {0x0090u, 0x00B0u, 0x00D0u, 0x00F0u};
 inline const vector<uint16> kandroid_chromium_non_ru_egressObservedAlpsTypes = {0x44CDu};
+inline const vector<vector<uint16>> kandroid_chromium_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1302u, 0x1303u, 0xC02Bu, 0xC02Fu, 0xC02Cu, 0xC030u, 0xCCA9u, 0xCCA8u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}};
+inline const vector<vector<uint16>> kandroid_chromium_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0x44CDu, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0x44CDu, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}};
+inline const vector<vector<uint16>> kandroid_chromium_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}};
 inline const vector<ExtensionCountBucket> kandroid_chromium_non_ru_egressExtensionCountHistogram = {{15u, 29u}, {16u, 24u}, {17u, 16u}};
 inline const vector<size_t> kandroid_chromium_non_ru_egressObservedHandshakeLengths = {1714u, 1726u, 1746u, 1758u, 1778u, 1790u, 1810u, 1822u, 1866u, 1878u, 1898u, 1910u, 1930u, 1942u, 1962u, 1974u};
 inline const vector<size_t> kandroid_chromium_non_ru_egressObservedRecordLengths = {1718u, 1730u, 1750u, 1762u, 1782u, 1794u, 1814u, 1826u, 1870u, 1882u, 1902u, 1914u, 1934u, 1946u, 1966u, 1978u};
@@ -118,6 +129,9 @@ inline const vector<vector<uint16>> kandroid_chromium_ru_egressObservedExtension
 inline const vector<size_t> kandroid_chromium_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kandroid_chromium_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kandroid_chromium_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kandroid_chromium_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kandroid_chromium_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kandroid_chromium_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kandroid_chromium_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kandroid_chromium_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kandroid_chromium_ru_egressObservedRecordLengths = {};
@@ -133,6 +147,9 @@ inline const vector<vector<uint16>> kandroid_chromium_unknownObservedExtensionOr
 inline const vector<size_t> kandroid_chromium_unknownObservedWireLengths = {};
 inline const vector<uint16> kandroid_chromium_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kandroid_chromium_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kandroid_chromium_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kandroid_chromium_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kandroid_chromium_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kandroid_chromium_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kandroid_chromium_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kandroid_chromium_unknownObservedRecordLengths = {};
@@ -148,6 +165,9 @@ inline const vector<vector<uint16>> kapple_ios_tls_non_ru_egressObservedExtensio
 inline const vector<size_t> kapple_ios_tls_non_ru_egressObservedWireLengths = {512u, 1540u, 1543u};
 inline const vector<uint16> kapple_ios_tls_non_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kapple_ios_tls_non_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kapple_ios_tls_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1302u, 0x1303u, 0xC02Cu, 0xC02Bu, 0xCCA9u, 0xC030u, 0xC02Fu, 0xCCA8u, 0xC00Au, 0xC009u, 0xC014u, 0xC013u, 0x009Du, 0x009Cu, 0x0035u, 0x002Fu, 0xC008u, 0xC012u, 0x000Au}, {0x1302u, 0x1303u, 0x1301u, 0xC02Cu, 0xC02Bu, 0xCCA9u, 0xC030u, 0xC02Fu, 0xCCA8u, 0xC00Au, 0xC009u, 0xC014u, 0xC013u, 0x009Du, 0x009Cu, 0x0035u, 0x002Fu, 0xC008u, 0xC012u, 0x000Au}};
+inline const vector<vector<uint16>> kapple_ios_tls_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x002Bu, 0x002Du, 0x0033u, 0xFF01u}};
+inline const vector<vector<uint16>> kapple_ios_tls_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}, {0x0304u, 0x0303u, 0x0302u, 0x0301u}};
 inline const vector<ExtensionCountBucket> kapple_ios_tls_non_ru_egressExtensionCountHistogram = {{13u, 42u}};
 inline const vector<size_t> kapple_ios_tls_non_ru_egressObservedHandshakeLengths = {508u, 1536u, 1539u};
 inline const vector<size_t> kapple_ios_tls_non_ru_egressObservedRecordLengths = {512u, 1540u, 1543u};
@@ -163,6 +183,9 @@ inline const vector<vector<uint16>> kapple_ios_tls_ru_egressObservedExtensionOrd
 inline const vector<size_t> kapple_ios_tls_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kapple_ios_tls_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kapple_ios_tls_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kapple_ios_tls_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kapple_ios_tls_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kapple_ios_tls_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kapple_ios_tls_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kapple_ios_tls_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kapple_ios_tls_ru_egressObservedRecordLengths = {};
@@ -178,6 +201,9 @@ inline const vector<vector<uint16>> kapple_ios_tls_unknownObservedExtensionOrder
 inline const vector<size_t> kapple_ios_tls_unknownObservedWireLengths = {};
 inline const vector<uint16> kapple_ios_tls_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kapple_ios_tls_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kapple_ios_tls_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kapple_ios_tls_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kapple_ios_tls_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kapple_ios_tls_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kapple_ios_tls_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kapple_ios_tls_unknownObservedRecordLengths = {};
@@ -193,6 +219,9 @@ inline const vector<vector<uint16>> kapple_macos_tls_non_ru_egressObservedExtens
 inline const vector<size_t> kapple_macos_tls_non_ru_egressObservedWireLengths = {1540u, 1543u};
 inline const vector<uint16> kapple_macos_tls_non_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kapple_macos_tls_non_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kapple_macos_tls_non_ru_egressObservedCipherSuiteSequences = {{0x1302u, 0x1303u, 0x1301u, 0xC02Cu, 0xC02Bu, 0xCCA9u, 0xC030u, 0xC02Fu, 0xCCA8u, 0xC00Au, 0xC009u, 0xC014u, 0xC013u, 0x009Du, 0x009Cu, 0x0035u, 0x002Fu, 0xC008u, 0xC012u, 0x000Au}};
+inline const vector<vector<uint16>> kapple_macos_tls_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x002Bu, 0x002Du, 0x0033u, 0xFF01u}};
+inline const vector<vector<uint16>> kapple_macos_tls_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}};
 inline const vector<ExtensionCountBucket> kapple_macos_tls_non_ru_egressExtensionCountHistogram = {{13u, 16u}};
 inline const vector<size_t> kapple_macos_tls_non_ru_egressObservedHandshakeLengths = {1536u, 1539u};
 inline const vector<size_t> kapple_macos_tls_non_ru_egressObservedRecordLengths = {1540u, 1543u};
@@ -208,6 +237,9 @@ inline const vector<vector<uint16>> kapple_macos_tls_ru_egressObservedExtensionO
 inline const vector<size_t> kapple_macos_tls_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kapple_macos_tls_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kapple_macos_tls_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kapple_macos_tls_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kapple_macos_tls_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kapple_macos_tls_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kapple_macos_tls_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kapple_macos_tls_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kapple_macos_tls_ru_egressObservedRecordLengths = {};
@@ -223,6 +255,9 @@ inline const vector<vector<uint16>> kapple_macos_tls_unknownObservedExtensionOrd
 inline const vector<size_t> kapple_macos_tls_unknownObservedWireLengths = {};
 inline const vector<uint16> kapple_macos_tls_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kapple_macos_tls_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kapple_macos_tls_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kapple_macos_tls_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kapple_macos_tls_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kapple_macos_tls_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kapple_macos_tls_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kapple_macos_tls_unknownObservedRecordLengths = {};
@@ -238,6 +273,9 @@ inline const vector<vector<uint16>> kchromium_linux_desktop_non_ru_egressObserve
 inline const vector<size_t> kchromium_linux_desktop_non_ru_egressObservedWireLengths = {1715u, 1779u, 1782u, 1794u, 1870u, 1882u, 1902u, 1914u, 1946u, 1966u, 1978u};
 inline const vector<uint16> kchromium_linux_desktop_non_ru_egressObservedEchPayloadLengths = {0x0090u, 0x00B0u, 0x00D0u, 0x00F0u};
 inline const vector<uint16> kchromium_linux_desktop_non_ru_egressObservedAlpsTypes = {0x44CDu};
+inline const vector<vector<uint16>> kchromium_linux_desktop_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1302u, 0x1303u, 0xC02Bu, 0xC02Fu, 0xC02Cu, 0xC030u, 0xCCA9u, 0xCCA8u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}};
+inline const vector<vector<uint16>> kchromium_linux_desktop_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0x44CDu, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0x44CDu, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}};
+inline const vector<vector<uint16>> kchromium_linux_desktop_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}};
 inline const vector<ExtensionCountBucket> kchromium_linux_desktop_non_ru_egressExtensionCountHistogram = {{15u, 1u}, {16u, 10u}, {17u, 5u}};
 inline const vector<size_t> kchromium_linux_desktop_non_ru_egressObservedHandshakeLengths = {1711u, 1775u, 1778u, 1790u, 1866u, 1878u, 1898u, 1910u, 1942u, 1962u, 1974u};
 inline const vector<size_t> kchromium_linux_desktop_non_ru_egressObservedRecordLengths = {1715u, 1779u, 1782u, 1794u, 1870u, 1882u, 1902u, 1914u, 1946u, 1966u, 1978u};
@@ -253,6 +291,9 @@ inline const vector<vector<uint16>> kchromium_linux_desktop_ru_egressObservedExt
 inline const vector<size_t> kchromium_linux_desktop_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kchromium_linux_desktop_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kchromium_linux_desktop_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kchromium_linux_desktop_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kchromium_linux_desktop_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kchromium_linux_desktop_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kchromium_linux_desktop_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kchromium_linux_desktop_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kchromium_linux_desktop_ru_egressObservedRecordLengths = {};
@@ -268,6 +309,9 @@ inline const vector<vector<uint16>> kchromium_linux_desktop_unknownObservedExten
 inline const vector<size_t> kchromium_linux_desktop_unknownObservedWireLengths = {};
 inline const vector<uint16> kchromium_linux_desktop_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kchromium_linux_desktop_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kchromium_linux_desktop_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kchromium_linux_desktop_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kchromium_linux_desktop_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kchromium_linux_desktop_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kchromium_linux_desktop_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kchromium_linux_desktop_unknownObservedRecordLengths = {};
@@ -283,6 +327,9 @@ inline const vector<vector<uint16>> kchromium_macos_non_ru_egressObservedExtensi
 inline const vector<size_t> kchromium_macos_non_ru_egressObservedWireLengths = {1718u, 1814u, 1870u, 1902u, 1914u, 1934u, 1946u, 1966u, 1978u};
 inline const vector<uint16> kchromium_macos_non_ru_egressObservedEchPayloadLengths = {0x0090u, 0x00B0u, 0x00D0u, 0x00F0u};
 inline const vector<uint16> kchromium_macos_non_ru_egressObservedAlpsTypes = {0x4469u, 0x44CDu};
+inline const vector<vector<uint16>> kchromium_macos_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1302u, 0x1303u, 0xC02Bu, 0xC02Fu, 0xC02Cu, 0xC030u, 0xCCA9u, 0xCCA8u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}};
+inline const vector<vector<uint16>> kchromium_macos_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0x4469u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0x44CDu, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}};
+inline const vector<vector<uint16>> kchromium_macos_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}};
 inline const vector<ExtensionCountBucket> kchromium_macos_non_ru_egressExtensionCountHistogram = {{15u, 2u}, {16u, 10u}, {17u, 9u}};
 inline const vector<size_t> kchromium_macos_non_ru_egressObservedHandshakeLengths = {1714u, 1810u, 1866u, 1898u, 1910u, 1930u, 1942u, 1962u, 1974u};
 inline const vector<size_t> kchromium_macos_non_ru_egressObservedRecordLengths = {1718u, 1814u, 1870u, 1902u, 1914u, 1934u, 1946u, 1966u, 1978u};
@@ -298,6 +345,9 @@ inline const vector<vector<uint16>> kchromium_macos_ru_egressObservedExtensionOr
 inline const vector<size_t> kchromium_macos_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kchromium_macos_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kchromium_macos_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kchromium_macos_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kchromium_macos_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kchromium_macos_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kchromium_macos_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kchromium_macos_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kchromium_macos_ru_egressObservedRecordLengths = {};
@@ -313,6 +363,9 @@ inline const vector<vector<uint16>> kchromium_macos_unknownObservedExtensionOrde
 inline const vector<size_t> kchromium_macos_unknownObservedWireLengths = {};
 inline const vector<uint16> kchromium_macos_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kchromium_macos_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kchromium_macos_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kchromium_macos_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kchromium_macos_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kchromium_macos_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kchromium_macos_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kchromium_macos_unknownObservedRecordLengths = {};
@@ -328,6 +381,9 @@ inline const vector<vector<uint16>> kchromium_windows_non_ru_egressObservedExten
 inline const vector<size_t> kchromium_windows_non_ru_egressObservedWireLengths = {512u, 1718u, 1736u, 1750u, 1782u, 1814u, 1870u, 1882u, 1902u, 1914u, 1932u, 1934u, 1946u, 1952u, 1964u, 1966u, 1978u, 1984u};
 inline const vector<uint16> kchromium_windows_non_ru_egressObservedEchPayloadLengths = {0x0090u, 0x00B0u, 0x00D0u, 0x00F0u};
 inline const vector<uint16> kchromium_windows_non_ru_egressObservedAlpsTypes = {0x4469u, 0x44CDu};
+inline const vector<vector<uint16>> kchromium_windows_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1302u, 0x1303u, 0xC02Bu, 0xC02Fu, 0xC02Cu, 0xC030u, 0xCCA9u, 0xCCA8u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}, {0x1301u, 0x1302u, 0x1303u, 0xC02Bu, 0xC02Fu, 0xC02Cu, 0xC030u, 0xCCA9u, 0xCCA8u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u, 0xC100u, 0xC101u, 0xC102u, 0xC103u, 0xC104u, 0xC105u, 0xC106u, 0xFF85u, 0x0081u}, {0x1303u, 0x1301u, 0x1302u, 0xCCA9u, 0xCCA8u, 0xC02Bu, 0xC02Fu, 0xC02Cu, 0xC030u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}};
+inline const vector<vector<uint16>> kchromium_windows_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0x4469u, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0x44CDu, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0x4469u, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0xFF01u}};
+inline const vector<vector<uint16>> kchromium_windows_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}};
 inline const vector<ExtensionCountBucket> kchromium_windows_non_ru_egressExtensionCountHistogram = {{13u, 4u}, {14u, 4u}, {15u, 10u}, {16u, 78u}, {17u, 34u}};
 inline const vector<size_t> kchromium_windows_non_ru_egressObservedHandshakeLengths = {508u, 1714u, 1732u, 1746u, 1778u, 1810u, 1866u, 1878u, 1898u, 1910u, 1928u, 1930u, 1942u, 1948u, 1960u, 1962u, 1974u, 1980u};
 inline const vector<size_t> kchromium_windows_non_ru_egressObservedRecordLengths = {512u, 1718u, 1736u, 1750u, 1782u, 1814u, 1870u, 1882u, 1902u, 1914u, 1932u, 1934u, 1946u, 1952u, 1964u, 1966u, 1978u, 1984u};
@@ -343,6 +399,9 @@ inline const vector<vector<uint16>> kchromium_windows_ru_egressObservedExtension
 inline const vector<size_t> kchromium_windows_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kchromium_windows_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kchromium_windows_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kchromium_windows_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kchromium_windows_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kchromium_windows_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kchromium_windows_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kchromium_windows_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kchromium_windows_ru_egressObservedRecordLengths = {};
@@ -358,6 +417,9 @@ inline const vector<vector<uint16>> kchromium_windows_unknownObservedExtensionOr
 inline const vector<size_t> kchromium_windows_unknownObservedWireLengths = {};
 inline const vector<uint16> kchromium_windows_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kchromium_windows_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kchromium_windows_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kchromium_windows_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kchromium_windows_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kchromium_windows_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kchromium_windows_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kchromium_windows_unknownObservedRecordLengths = {};
@@ -373,6 +435,9 @@ inline const vector<vector<uint16>> kfirefox_android_non_ru_egressObservedExtens
 inline const vector<size_t> kfirefox_android_non_ru_egressObservedWireLengths = {1899u, 1901u, 1931u, 2209u};
 inline const vector<uint16> kfirefox_android_non_ru_egressObservedEchPayloadLengths = {0x00B0u, 0x00D0u, 0x00EFu, 0x018Fu};
 inline const vector<uint16> kfirefox_android_non_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_android_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1303u, 0x1302u, 0xC02Bu, 0xC02Fu, 0xCCA9u, 0xCCA8u, 0xC02Cu, 0xC030u, 0xC00Au, 0xC009u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}, {0x1301u, 0x1303u, 0x1302u, 0xC02Bu, 0xC02Fu, 0xCCA9u, 0xCCA8u, 0xC02Cu, 0xC030u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}};
+inline const vector<vector<uint16>> kfirefox_android_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0017u, 0x001Bu, 0x001Cu, 0x0022u, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0017u, 0x001Bu, 0x001Cu, 0x0022u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}};
+inline const vector<vector<uint16>> kfirefox_android_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}};
 inline const vector<ExtensionCountBucket> kfirefox_android_non_ru_egressExtensionCountHistogram = {{16u, 59u}};
 inline const vector<size_t> kfirefox_android_non_ru_egressObservedHandshakeLengths = {1895u, 1897u, 1927u, 2205u};
 inline const vector<size_t> kfirefox_android_non_ru_egressObservedRecordLengths = {1899u, 1901u, 1931u, 2209u};
@@ -388,6 +453,9 @@ inline const vector<vector<uint16>> kfirefox_android_ru_egressObservedExtensionO
 inline const vector<size_t> kfirefox_android_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kfirefox_android_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kfirefox_android_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_android_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kfirefox_android_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kfirefox_android_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kfirefox_android_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kfirefox_android_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kfirefox_android_ru_egressObservedRecordLengths = {};
@@ -403,6 +471,9 @@ inline const vector<vector<uint16>> kfirefox_android_unknownObservedExtensionOrd
 inline const vector<size_t> kfirefox_android_unknownObservedWireLengths = {};
 inline const vector<uint16> kfirefox_android_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kfirefox_android_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_android_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kfirefox_android_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kfirefox_android_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kfirefox_android_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kfirefox_android_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kfirefox_android_unknownObservedRecordLengths = {};
@@ -418,6 +489,9 @@ inline const vector<vector<uint16>> kfirefox_linux_desktop_non_ru_egressObserved
 inline const vector<size_t> kfirefox_linux_desktop_non_ru_egressObservedWireLengths = {1890u, 1899u, 1905u, 2207u, 2209u, 2213u};
 inline const vector<uint16> kfirefox_linux_desktop_non_ru_egressObservedEchPayloadLengths = {0x00EFu, 0x018Fu};
 inline const vector<uint16> kfirefox_linux_desktop_non_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_linux_desktop_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1303u, 0x1302u, 0xC02Bu, 0xC02Fu, 0xCCA9u, 0xCCA8u, 0xC02Cu, 0xC030u, 0xC00Au, 0xC009u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}, {0x1301u, 0x1303u, 0x1302u, 0xC02Bu, 0xC02Fu, 0xCCA9u, 0xCCA8u, 0xC02Cu, 0xC030u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}};
+inline const vector<vector<uint16>> kfirefox_linux_desktop_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x001Cu, 0x0022u, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x001Cu, 0x0022u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}};
+inline const vector<vector<uint16>> kfirefox_linux_desktop_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}};
 inline const vector<ExtensionCountBucket> kfirefox_linux_desktop_non_ru_egressExtensionCountHistogram = {{17u, 20u}};
 inline const vector<size_t> kfirefox_linux_desktop_non_ru_egressObservedHandshakeLengths = {1886u, 1895u, 1901u, 2203u, 2205u, 2209u};
 inline const vector<size_t> kfirefox_linux_desktop_non_ru_egressObservedRecordLengths = {1890u, 1899u, 1905u, 2207u, 2209u, 2213u};
@@ -433,6 +507,9 @@ inline const vector<vector<uint16>> kfirefox_linux_desktop_ru_egressObservedExte
 inline const vector<size_t> kfirefox_linux_desktop_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kfirefox_linux_desktop_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kfirefox_linux_desktop_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_linux_desktop_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kfirefox_linux_desktop_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kfirefox_linux_desktop_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kfirefox_linux_desktop_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kfirefox_linux_desktop_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kfirefox_linux_desktop_ru_egressObservedRecordLengths = {};
@@ -448,6 +525,9 @@ inline const vector<vector<uint16>> kfirefox_linux_desktop_unknownObservedExtens
 inline const vector<size_t> kfirefox_linux_desktop_unknownObservedWireLengths = {};
 inline const vector<uint16> kfirefox_linux_desktop_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kfirefox_linux_desktop_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_linux_desktop_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kfirefox_linux_desktop_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kfirefox_linux_desktop_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kfirefox_linux_desktop_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kfirefox_linux_desktop_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kfirefox_linux_desktop_unknownObservedRecordLengths = {};
@@ -463,6 +543,9 @@ inline const vector<vector<uint16>> kfirefox_macos_non_ru_egressObservedExtensio
 inline const vector<size_t> kfirefox_macos_non_ru_egressObservedWireLengths = {1905u, 2213u};
 inline const vector<uint16> kfirefox_macos_non_ru_egressObservedEchPayloadLengths = {0x00EFu, 0x018Fu};
 inline const vector<uint16> kfirefox_macos_non_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_macos_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1303u, 0x1302u, 0xC02Bu, 0xC02Fu, 0xCCA9u, 0xCCA8u, 0xC02Cu, 0xC030u, 0xC00Au, 0xC009u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}};
+inline const vector<vector<uint16>> kfirefox_macos_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x001Cu, 0x0022u, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x001Cu, 0x0022u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}};
+inline const vector<vector<uint16>> kfirefox_macos_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}};
 inline const vector<ExtensionCountBucket> kfirefox_macos_non_ru_egressExtensionCountHistogram = {{17u, 28u}};
 inline const vector<size_t> kfirefox_macos_non_ru_egressObservedHandshakeLengths = {1901u, 2209u};
 inline const vector<size_t> kfirefox_macos_non_ru_egressObservedRecordLengths = {1905u, 2213u};
@@ -478,6 +561,9 @@ inline const vector<vector<uint16>> kfirefox_macos_ru_egressObservedExtensionOrd
 inline const vector<size_t> kfirefox_macos_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kfirefox_macos_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kfirefox_macos_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_macos_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kfirefox_macos_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kfirefox_macos_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kfirefox_macos_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kfirefox_macos_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kfirefox_macos_ru_egressObservedRecordLengths = {};
@@ -493,6 +579,9 @@ inline const vector<vector<uint16>> kfirefox_macos_unknownObservedExtensionOrder
 inline const vector<size_t> kfirefox_macos_unknownObservedWireLengths = {};
 inline const vector<uint16> kfirefox_macos_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kfirefox_macos_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_macos_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kfirefox_macos_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kfirefox_macos_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kfirefox_macos_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kfirefox_macos_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kfirefox_macos_unknownObservedRecordLengths = {};
@@ -508,6 +597,9 @@ inline const vector<vector<uint16>> kfirefox_windows_non_ru_egressObservedExtens
 inline const vector<size_t> kfirefox_windows_non_ru_egressObservedWireLengths = {287u, 531u, 535u, 1905u, 2201u, 2204u, 2213u};
 inline const vector<uint16> kfirefox_windows_non_ru_egressObservedEchPayloadLengths = {0x00EFu, 0x018Fu};
 inline const vector<uint16> kfirefox_windows_non_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_windows_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1303u, 0x1302u, 0xC02Bu, 0xC02Fu, 0xCCA9u, 0xCCA8u, 0xC02Cu, 0xC030u, 0xC00Au, 0xC009u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}, {0x1301u, 0x1303u, 0x1302u, 0xC02Bu, 0xC02Fu, 0xCCA9u, 0xCCA8u, 0xC02Cu, 0xC030u, 0xC00Au, 0xC009u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u, 0x00FFu}};
+inline const vector<vector<uint16>> kfirefox_windows_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x001Cu, 0x0022u, 0x0023u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x001Cu, 0x0022u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0017u, 0x001Cu, 0x0022u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0017u, 0x0023u, 0x002Bu, 0x002Du, 0x0033u}, {0x0000u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x001Cu, 0x0022u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0xFE0Du, 0xFF01u}};
+inline const vector<vector<uint16>> kfirefox_windows_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}, {0x0304u, 0x0303u, 0x0302u, 0x0301u}};
 inline const vector<ExtensionCountBucket> kfirefox_windows_non_ru_egressExtensionCountHistogram = {{11u, 6u}, {14u, 12u}, {16u, 6u}, {17u, 28u}};
 inline const vector<size_t> kfirefox_windows_non_ru_egressObservedHandshakeLengths = {283u, 527u, 531u, 1901u, 2197u, 2200u, 2209u};
 inline const vector<size_t> kfirefox_windows_non_ru_egressObservedRecordLengths = {287u, 531u, 535u, 1905u, 2201u, 2204u, 2213u};
@@ -523,6 +615,9 @@ inline const vector<vector<uint16>> kfirefox_windows_ru_egressObservedExtensionO
 inline const vector<size_t> kfirefox_windows_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kfirefox_windows_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kfirefox_windows_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_windows_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kfirefox_windows_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kfirefox_windows_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kfirefox_windows_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kfirefox_windows_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kfirefox_windows_ru_egressObservedRecordLengths = {};
@@ -538,6 +633,9 @@ inline const vector<vector<uint16>> kfirefox_windows_unknownObservedExtensionOrd
 inline const vector<size_t> kfirefox_windows_unknownObservedWireLengths = {};
 inline const vector<uint16> kfirefox_windows_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kfirefox_windows_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kfirefox_windows_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kfirefox_windows_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kfirefox_windows_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kfirefox_windows_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kfirefox_windows_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kfirefox_windows_unknownObservedRecordLengths = {};
@@ -553,6 +651,9 @@ inline const vector<vector<uint16>> kios_chromium_non_ru_egressObservedExtension
 inline const vector<size_t> kios_chromium_non_ru_egressObservedWireLengths = {1540u, 1543u, 1882u, 1978u};
 inline const vector<uint16> kios_chromium_non_ru_egressObservedEchPayloadLengths = {0x0090u, 0x00F0u};
 inline const vector<uint16> kios_chromium_non_ru_egressObservedAlpsTypes = {0x44CDu};
+inline const vector<vector<uint16>> kios_chromium_non_ru_egressObservedCipherSuiteSequences = {{0x1301u, 0x1302u, 0x1303u, 0xC02Bu, 0xC02Fu, 0xC02Cu, 0xC030u, 0xCCA9u, 0xCCA8u, 0xC013u, 0xC014u, 0x009Cu, 0x009Du, 0x002Fu, 0x0035u}, {0x1302u, 0x1303u, 0x1301u, 0xC02Cu, 0xC02Bu, 0xCCA9u, 0xC030u, 0xC02Fu, 0xCCA8u, 0xC00Au, 0xC009u, 0xC014u, 0xC013u, 0x009Du, 0x009Cu, 0x0035u, 0x002Fu, 0xC008u, 0xC012u, 0x000Au}};
+inline const vector<vector<uint16>> kios_chromium_non_ru_egressObservedExtensionSets = {{0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x0023u, 0x0029u, 0x002Bu, 0x002Du, 0x0033u, 0x44CDu, 0xFE0Du, 0xFF01u}, {0x0000u, 0x0005u, 0x000Au, 0x000Bu, 0x000Du, 0x0010u, 0x0012u, 0x0017u, 0x001Bu, 0x002Bu, 0x002Du, 0x0033u, 0xFF01u}};
+inline const vector<vector<uint16>> kios_chromium_non_ru_egressObservedSupportedVersionsSequences = {{0x0304u, 0x0303u}};
 inline const vector<ExtensionCountBucket> kios_chromium_non_ru_egressExtensionCountHistogram = {{13u, 3u}, {17u, 2u}};
 inline const vector<size_t> kios_chromium_non_ru_egressObservedHandshakeLengths = {1536u, 1539u, 1878u, 1974u};
 inline const vector<size_t> kios_chromium_non_ru_egressObservedRecordLengths = {1540u, 1543u, 1882u, 1978u};
@@ -568,6 +669,9 @@ inline const vector<vector<uint16>> kios_chromium_ru_egressObservedExtensionOrde
 inline const vector<size_t> kios_chromium_ru_egressObservedWireLengths = {};
 inline const vector<uint16> kios_chromium_ru_egressObservedEchPayloadLengths = {};
 inline const vector<uint16> kios_chromium_ru_egressObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kios_chromium_ru_egressObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kios_chromium_ru_egressObservedExtensionSets = {};
+inline const vector<vector<uint16>> kios_chromium_ru_egressObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kios_chromium_ru_egressExtensionCountHistogram = {};
 inline const vector<size_t> kios_chromium_ru_egressObservedHandshakeLengths = {};
 inline const vector<size_t> kios_chromium_ru_egressObservedRecordLengths = {};
@@ -583,6 +687,9 @@ inline const vector<vector<uint16>> kios_chromium_unknownObservedExtensionOrderT
 inline const vector<size_t> kios_chromium_unknownObservedWireLengths = {};
 inline const vector<uint16> kios_chromium_unknownObservedEchPayloadLengths = {};
 inline const vector<uint16> kios_chromium_unknownObservedAlpsTypes = {};
+inline const vector<vector<uint16>> kios_chromium_unknownObservedCipherSuiteSequences = {};
+inline const vector<vector<uint16>> kios_chromium_unknownObservedExtensionSets = {};
+inline const vector<vector<uint16>> kios_chromium_unknownObservedSupportedVersionsSequences = {};
 inline const vector<ExtensionCountBucket> kios_chromium_unknownExtensionCountHistogram = {};
 inline const vector<size_t> kios_chromium_unknownObservedHandshakeLengths = {};
 inline const vector<size_t> kios_chromium_unknownObservedRecordLengths = {};
@@ -619,6 +726,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kandroid_chromium_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kandroid_chromium_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kandroid_chromium_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kandroid_chromium_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kandroid_chromium_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kandroid_chromium_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Exact;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Catalog;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Exact;
@@ -663,6 +773,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kandroid_chromium_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kandroid_chromium_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kandroid_chromium_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kandroid_chromium_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kandroid_chromium_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kandroid_chromium_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -707,6 +820,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kandroid_chromium_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kandroid_chromium_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kandroid_chromium_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kandroid_chromium_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kandroid_chromium_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kandroid_chromium_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -751,6 +867,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kapple_ios_tls_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kapple_ios_tls_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kapple_ios_tls_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kapple_ios_tls_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kapple_ios_tls_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kapple_ios_tls_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Catalog;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Exact;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Catalog;
@@ -795,6 +914,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kapple_ios_tls_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kapple_ios_tls_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kapple_ios_tls_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kapple_ios_tls_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kapple_ios_tls_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kapple_ios_tls_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -839,6 +961,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kapple_ios_tls_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kapple_ios_tls_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kapple_ios_tls_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kapple_ios_tls_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kapple_ios_tls_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kapple_ios_tls_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -883,6 +1008,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kapple_macos_tls_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kapple_macos_tls_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kapple_macos_tls_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kapple_macos_tls_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kapple_macos_tls_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kapple_macos_tls_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Exact;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Exact;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Exact;
@@ -927,6 +1055,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kapple_macos_tls_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kapple_macos_tls_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kapple_macos_tls_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kapple_macos_tls_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kapple_macos_tls_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kapple_macos_tls_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -971,6 +1102,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kapple_macos_tls_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kapple_macos_tls_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kapple_macos_tls_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kapple_macos_tls_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kapple_macos_tls_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kapple_macos_tls_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1015,6 +1149,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kchromium_linux_desktop_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kchromium_linux_desktop_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kchromium_linux_desktop_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kchromium_linux_desktop_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kchromium_linux_desktop_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kchromium_linux_desktop_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Exact;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Catalog;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Exact;
@@ -1059,6 +1196,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kchromium_linux_desktop_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kchromium_linux_desktop_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kchromium_linux_desktop_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kchromium_linux_desktop_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kchromium_linux_desktop_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kchromium_linux_desktop_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1103,6 +1243,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kchromium_linux_desktop_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kchromium_linux_desktop_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kchromium_linux_desktop_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kchromium_linux_desktop_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kchromium_linux_desktop_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kchromium_linux_desktop_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1147,6 +1290,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kchromium_macos_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kchromium_macos_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kchromium_macos_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kchromium_macos_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kchromium_macos_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kchromium_macos_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Exact;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Catalog;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Catalog;
@@ -1191,6 +1337,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kchromium_macos_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kchromium_macos_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kchromium_macos_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kchromium_macos_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kchromium_macos_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kchromium_macos_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1235,6 +1384,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kchromium_macos_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kchromium_macos_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kchromium_macos_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kchromium_macos_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kchromium_macos_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kchromium_macos_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1279,6 +1431,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kchromium_windows_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kchromium_windows_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kchromium_windows_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kchromium_windows_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kchromium_windows_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kchromium_windows_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Catalog;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Catalog;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Catalog;
@@ -1323,6 +1478,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kchromium_windows_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kchromium_windows_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kchromium_windows_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kchromium_windows_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kchromium_windows_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kchromium_windows_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1367,6 +1525,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kchromium_windows_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kchromium_windows_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kchromium_windows_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kchromium_windows_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kchromium_windows_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kchromium_windows_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1411,6 +1572,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_android_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_android_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_android_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_android_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_android_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_android_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Catalog;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Catalog;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Exact;
@@ -1455,6 +1619,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_android_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_android_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_android_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_android_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_android_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_android_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1499,6 +1666,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_android_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_android_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_android_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_android_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_android_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_android_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1543,6 +1713,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_linux_desktop_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_linux_desktop_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_linux_desktop_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_linux_desktop_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_linux_desktop_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_linux_desktop_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Catalog;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Catalog;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Exact;
@@ -1587,6 +1760,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_linux_desktop_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_linux_desktop_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_linux_desktop_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_linux_desktop_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_linux_desktop_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_linux_desktop_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1631,6 +1807,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_linux_desktop_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_linux_desktop_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_linux_desktop_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_linux_desktop_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_linux_desktop_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_linux_desktop_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1675,6 +1854,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_macos_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_macos_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_macos_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_macos_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_macos_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_macos_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Exact;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Catalog;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Exact;
@@ -1719,6 +1901,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_macos_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_macos_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_macos_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_macos_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_macos_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_macos_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1763,6 +1948,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_macos_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_macos_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_macos_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_macos_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_macos_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_macos_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1807,6 +1995,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_windows_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_windows_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_windows_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_windows_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_windows_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_windows_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Catalog;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Catalog;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Catalog;
@@ -1851,6 +2042,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_windows_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_windows_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_windows_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_windows_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_windows_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_windows_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1895,6 +2089,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kfirefox_windows_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kfirefox_windows_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kfirefox_windows_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kfirefox_windows_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kfirefox_windows_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kfirefox_windows_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -1939,6 +2136,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kios_chromium_non_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kios_chromium_non_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kios_chromium_non_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kios_chromium_non_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kios_chromium_non_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kios_chromium_non_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Catalog;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Catalog;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Catalog;
@@ -1983,6 +2183,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kios_chromium_ru_egressObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kios_chromium_ru_egressObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kios_chromium_ru_egressObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kios_chromium_ru_egressObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kios_chromium_ru_egressObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kios_chromium_ru_egressObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;
@@ -2027,6 +2230,9 @@ inline const vector<FamilyLaneBaseline> &get_baselines_table() {
       b.set_catalog.observed_wire_lengths = kios_chromium_unknownObservedWireLengths;
       b.set_catalog.observed_ech_payload_lengths = kios_chromium_unknownObservedEchPayloadLengths;
       b.set_catalog.observed_alps_types = kios_chromium_unknownObservedAlpsTypes;
+      b.set_catalog.observed_cipher_suite_sequences = kios_chromium_unknownObservedCipherSuiteSequences;
+      b.set_catalog.observed_extension_sets = kios_chromium_unknownObservedExtensionSets;
+      b.set_catalog.observed_supported_versions_sequences = kios_chromium_unknownObservedSupportedVersionsSequences;
       b.non_grease_cipher_suites_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_extension_set_status = EvidenceFieldStatus::Unavailable;
       b.non_grease_supported_groups_status = EvidenceFieldStatus::Unavailable;

@@ -402,6 +402,14 @@ struct SetMembershipCatalog final {
   vector<size_t> observed_wire_lengths;
   vector<uint16> observed_ech_payload_lengths;
   vector<uint16> observed_alps_types;
+  // Per-field observed-value catalogs. Populated for release-critical fields
+  // whose reviewed evidence status is Catalog (sources legitimately disagree,
+  // so there is no single exact invariant). A release gate must require the
+  // generated value to be a member of the corresponding catalog instead of
+  // skipping the field because its ExactInvariants entry is empty.
+  vector<vector<uint16>> observed_cipher_suite_sequences;
+  vector<vector<uint16>> observed_extension_sets;
+  vector<vector<uint16>> observed_supported_versions_sequences;
 };
 
 struct FamilyLaneBaseline final {
@@ -564,6 +572,12 @@ def _build_set_catalog(group: list[dict[str, Any]]) -> dict[str, Any]:
     seen_ech: set[int] = set()
     alps_types: list[int] = []
     seen_alps: set[int] = set()
+    cipher_sequences: list[list[int]] = []
+    seen_cipher: set[tuple[int, ...]] = set()
+    extension_sets: list[list[int]] = []
+    seen_extension_set: set[tuple[int, ...]] = set()
+    version_sequences: list[list[int]] = []
+    seen_versions: set[tuple[int, ...]] = set()
 
     for entry in group:
         sample = entry["sample"]
@@ -573,6 +587,26 @@ def _build_set_catalog(group: list[dict[str, Any]]) -> dict[str, Any]:
         if key not in seen_templates:
             seen_templates.add(key)
             order_templates.append(ext_order)
+
+        # Extension *set* membership ignores order (chromium lanes shuffle).
+        ext_set = sorted(set(ext_order))
+        ext_set_key = tuple(ext_set)
+        if ext_set and ext_set_key not in seen_extension_set:
+            seen_extension_set.add(ext_set_key)
+            extension_sets.append(ext_set)
+
+        cipher = _sample_non_grease_cipher_suites(sample)
+        cipher_key = tuple(cipher)
+        if cipher and cipher_key not in seen_cipher:
+            seen_cipher.add(cipher_key)
+            cipher_sequences.append(cipher)
+
+        versions = [int(v, 16) if isinstance(v, str) else int(v)
+                    for v in _sample_non_grease_supported_versions(sample)]
+        version_key = tuple(versions)
+        if versions and version_key not in seen_versions:
+            seen_versions.add(version_key)
+            version_sequences.append(versions)
 
         wl = _sample_wire_length(sample)
         if wl and wl not in seen_wire:
@@ -589,8 +623,11 @@ def _build_set_catalog(group: list[dict[str, Any]]) -> dict[str, Any]:
                 seen_alps.add(t)
                 alps_types.append(t)
 
-    # Stable ordering: templates sorted by their tuple, numbers ascending.
+    # Stable ordering: templates and sequences sorted by their tuple, numbers ascending.
     order_templates.sort()
+    extension_sets.sort()
+    cipher_sequences.sort()
+    version_sequences.sort()
     wire_lengths.sort()
     ech_lengths.sort()
     alps_types.sort()
@@ -600,6 +637,9 @@ def _build_set_catalog(group: list[dict[str, Any]]) -> dict[str, Any]:
         "wire_lengths": wire_lengths,
         "ech_payload_lengths": ech_lengths,
         "alps_types": alps_types,
+        "cipher_suite_sequences": cipher_sequences,
+        "extension_sets": extension_sets,
+        "supported_versions_sequences": version_sequences,
     }
 
 
@@ -625,6 +665,9 @@ def _synthetic_fail_closed_catalog() -> dict[str, Any]:
         "wire_lengths": [],
         "ech_payload_lengths": [],
         "alps_types": [],
+        "cipher_suite_sequences": [],
+        "extension_sets": [],
+        "supported_versions_sequences": [],
     }
 
 
@@ -958,6 +1001,18 @@ def render_header(baselines: list[dict[str, Any]]) -> str:
         lines.append(
             f"inline const vector<uint16> {prefix}ObservedAlpsTypes = {_cpp_u16_list(cat['alps_types'])};"
         )
+        cipher_seq_inits = ", ".join(_cpp_u16_list(s) for s in cat["cipher_suite_sequences"])
+        lines.append(
+            f"inline const vector<vector<uint16>> {prefix}ObservedCipherSuiteSequences = {{{cipher_seq_inits}}};"
+        )
+        extension_set_inits = ", ".join(_cpp_u16_list(s) for s in cat["extension_sets"])
+        lines.append(
+            f"inline const vector<vector<uint16>> {prefix}ObservedExtensionSets = {{{extension_set_inits}}};"
+        )
+        version_seq_inits = ", ".join(_cpp_u16_list(s) for s in cat["supported_versions_sequences"])
+        lines.append(
+            f"inline const vector<vector<uint16>> {prefix}ObservedSupportedVersionsSequences = {{{version_seq_inits}}};"
+        )
         histogram_inits = ", ".join(
             "{" + f"{bucket['count']}u, {bucket['observed_samples']}u" + "}"
             for bucket in baseline["extension_count_histogram"]
@@ -1020,6 +1075,15 @@ def render_header(baselines: list[dict[str, Any]]) -> str:
         )
         lines.append(
             f"      b.set_catalog.observed_alps_types = {prefix}ObservedAlpsTypes;"
+        )
+        lines.append(
+            f"      b.set_catalog.observed_cipher_suite_sequences = {prefix}ObservedCipherSuiteSequences;"
+        )
+        lines.append(
+            f"      b.set_catalog.observed_extension_sets = {prefix}ObservedExtensionSets;"
+        )
+        lines.append(
+            f"      b.set_catalog.observed_supported_versions_sequences = {prefix}ObservedSupportedVersionsSequences;"
         )
         for status_name in _ALL_STATUS_NAMES:
             lines.append(
