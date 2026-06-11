@@ -45,9 +45,11 @@ ProfileWeights expected_profile_weights_for_platform(const RuntimePlatformHints 
     weights.safari26_3 = 0;
   }
 
-  // Platform-specific explicit lanes are always bridged from the non-darwin
-  // desktop ratios, and legacy schema leaves iOS Chromium disabled by default.
+  // Platform-specific explicit lanes are always bridged from the desktop ratios,
+  // and legacy schema leaves iOS Chromium disabled by default. macOS Firefox is
+  // bridged from the darwin firefox ratio (10) on every platform.
   weights.chrome147_windows = 50;
+  weights.firefox149_macos26_3 = 10;
   weights.firefox149_windows = 15;
   weights.chrome147_ios_chromium = 0;
   weights.ios14 = 70;
@@ -62,6 +64,7 @@ void assert_profile_weights_eq(const ProfileWeights &lhs, const ProfileWeights &
   ASSERT_EQ(lhs.chrome147_windows, rhs.chrome147_windows);
   ASSERT_EQ(lhs.chrome147_ios_chromium, rhs.chrome147_ios_chromium);
   ASSERT_EQ(lhs.firefox148, rhs.firefox148);
+  ASSERT_EQ(lhs.firefox149_macos26_3, rhs.firefox149_macos26_3);
   ASSERT_EQ(lhs.firefox149_windows, rhs.firefox149_windows);
   ASSERT_EQ(lhs.safari26_3, rhs.safari26_3);
   ASSERT_EQ(lhs.ios14, rhs.ios14);

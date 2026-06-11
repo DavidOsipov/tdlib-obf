@@ -48,8 +48,9 @@ td::uint8 profile_weight_of(const ProfileWeights &weights, BrowserProfile profil
     case BrowserProfile::Chrome147_IOSChromium:
       return weights.chrome147_ios_chromium;
     case BrowserProfile::Firefox148:
-    case BrowserProfile::Firefox149_MacOS26_3:
       return weights.firefox148;
+    case BrowserProfile::Firefox149_MacOS26_3:
+      return weights.firefox149_macos26_3;
     case BrowserProfile::Firefox149_Windows:
       return weights.firefox149_windows;
     case BrowserProfile::Safari26_3:

@@ -1050,6 +1050,8 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_route_hints_country_boundary_adversarial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_fingerprint_classifier_blackhat.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_profile_selection_weight_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_profile_firefox_weight_independence.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_profile_selection_per_install_entropy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_ech_circuit_breaker_concurrency_adversarial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_ech_route_failure_serialization_adversarial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_ech_route_failure_numeric_overflow_adversarial.cpp

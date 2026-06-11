@@ -90,6 +90,7 @@ inline stealth::ProfileWeights zero_profile_weights() {
   weights.chrome147_windows = 0;
   weights.chrome147_ios_chromium = 0;
   weights.firefox148 = 0;
+  weights.firefox149_macos26_3 = 0;
   weights.firefox149_windows = 0;
   weights.safari26_3 = 0;
   weights.ios14 = 0;

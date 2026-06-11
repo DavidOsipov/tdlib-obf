@@ -830,8 +830,9 @@ uint8 profile_weight(const ProfileWeights &weights, BrowserProfile profile) {
     case BrowserProfile::Chrome147_IOSChromium:
       return weights.chrome147_ios_chromium;
     case BrowserProfile::Firefox148:
-    case BrowserProfile::Firefox149_MacOS26_3:
       return weights.firefox148;
+    case BrowserProfile::Firefox149_MacOS26_3:
+      return weights.firefox149_macos26_3;
     case BrowserProfile::Firefox149_Windows:
       return weights.firefox149_windows;
     case BrowserProfile::Safari26_3:
@@ -846,6 +847,27 @@ uint8 profile_weight(const ProfileWeights &weights, BrowserProfile profile) {
   }
 }
 
+std::atomic<uint64> &per_install_selection_salt_cache() {
+  static std::atomic<uint64> salt{0};
+  return salt;
+}
+
+// Per-installation salt mixed into stable_selection_hash so two installations
+// sharing the same destination, platform, and time bucket do not deterministically
+// pick the same profile (population-correlation defence against DPI). 0 is the
+// "unset / no entropy" sentinel and reproduces the legacy deterministic vector.
+//
+// The salt is supplied by the host via set_per_install_selection_salt. It must be
+// generated once per installation and persisted (e.g. in the app's key-value
+// store), then re-applied on every launch: a salt that changed each start would
+// rotate the chosen profile across restarts and itself become a fingerprint, so a
+// stable per-install value is required. The salt is intentionally NOT minted
+// automatically here — keeping selection deterministic by default avoids coupling
+// profile choice to unrelated global state and keeps unit-test vectors stable.
+uint64 effective_per_install_selection_salt() {
+  return per_install_selection_salt_cache().load(std::memory_order_relaxed);
+}
+
 uint32 stable_selection_hash(const SelectionKey &key, const RuntimePlatformHints &platform) {
   string material = key.destination;
   material += '|';
@@ -856,6 +878,13 @@ uint32 stable_selection_hash(const SelectionKey &key, const RuntimePlatformHints
   material += to_string(static_cast<int>(platform.mobile_os));
   material += '|';
   material += to_string(static_cast<int>(platform.desktop_os));
+  auto salt = effective_per_install_selection_salt();
+  if (salt != 0) {
+    // Only appended when a salt is configured, so the salt-free material (and
+    // therefore every existing deterministic selection vector) is unchanged.
+    material += '|';
+    material += to_string(salt);
+  }
   return crc32(material);
 }
 
@@ -894,6 +923,18 @@ void set_runtime_ech_failure_store(std::shared_ptr<KeyValueSyncInterface> store)
   auto lock = std::scoped_lock(tls_hello_profile_registry_internal::route_failure_cache_mutex());
   tls_hello_profile_registry_internal::route_failure_store() = std::move(store);
   tls_hello_profile_registry_internal::route_failure_cache().clear();
+}
+
+void set_per_install_selection_salt(uint64 salt) noexcept {
+  tls_hello_profile_registry_internal::per_install_selection_salt_cache().store(salt, std::memory_order_relaxed);
+}
+
+uint64 get_per_install_selection_salt() noexcept {
+  return tls_hello_profile_registry_internal::per_install_selection_salt_cache().load(std::memory_order_relaxed);
+}
+
+void reset_per_install_selection_salt_for_tests() noexcept {
+  tls_hello_profile_registry_internal::per_install_selection_salt_cache().store(0, std::memory_order_relaxed);
 }
 
 void reconcile_runtime_ech_failure_ttl(double ttl_seconds) {
