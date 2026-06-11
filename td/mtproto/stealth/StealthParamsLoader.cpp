@@ -423,12 +423,17 @@ ProfileWeights flatten_profile_selection(const RuntimeProfileSelectionPolicy &po
   // instead of silently falling back to the first allowed profile.
   weights.chrome147_windows = policy.desktop_non_darwin.chrome133;
   weights.firefox149_windows = policy.desktop_non_darwin.firefox148;
-  // Legacy plan-style mobile schema has no dedicated iOS Chromium lane.
-  // Keep it disabled unless explicitly provided through flat profile_weights.
-  weights.chrome147_ios_chromium = 0;
+  // macOS Firefox lane gets its own slot, bridged from the darwin firefox ratio
+  // (matches effective_profile_weights_for_platform so loaded and default params
+  // agree).
+  weights.firefox149_macos26_3 = policy.desktop_darwin.firefox148;
+  // Carve a slice of the iOS share for the verified iOS Chromium lane instead of
+  // pinning it to 0; the remainder stays with the advisory IOS14 lane.
+  auto ios_chromium_weight = static_cast<uint8>(policy.mobile.ios14 / kIosChromiumShareDivisor);
+  weights.chrome147_ios_chromium = ios_chromium_weight;
   weights.firefox148 = desktop_weights->firefox148;
   weights.safari26_3 = desktop_weights->safari26_3;
-  weights.ios14 = policy.mobile.ios14;
+  weights.ios14 = static_cast<uint8>(policy.mobile.ios14 - ios_chromium_weight);
   weights.android11_okhttp_advisory = policy.mobile.android11_okhttp_advisory;
   return weights;
 }

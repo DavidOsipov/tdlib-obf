@@ -45,14 +45,15 @@ ProfileWeights expected_profile_weights_for_platform(const RuntimePlatformHints 
     weights.safari26_3 = 0;
   }
 
-  // Platform-specific explicit lanes are always bridged from the desktop ratios,
-  // and legacy schema leaves iOS Chromium disabled by default. macOS Firefox is
-  // bridged from the darwin firefox ratio (10) on every platform.
+  // Platform-specific explicit lanes are always bridged from the desktop ratios.
+  // macOS Firefox is bridged from the darwin firefox ratio (10) on every platform,
+  // and the verified iOS Chromium lane now carries its own mobile-policy weight
+  // (10) carved out of the iOS share.
   weights.chrome147_windows = 50;
   weights.firefox149_macos26_3 = 10;
   weights.firefox149_windows = 15;
-  weights.chrome147_ios_chromium = 0;
-  weights.ios14 = 70;
+  weights.chrome147_ios_chromium = 10;
+  weights.ios14 = 60;
   weights.android11_okhttp_advisory = 30;
   return weights;
 }
