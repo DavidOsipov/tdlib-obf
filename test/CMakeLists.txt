@@ -963,6 +963,7 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_corpus_structural_key_material_stress_1k.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_android_chromium_alps_baseline.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_android_chromium_no_alps_baseline.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_android_firefox_baseline.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_ios_apple_tls_baseline.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_ios_chromium_baseline.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_ios_chromium_stats.cpp
@@ -970,6 +971,7 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_linux_chrome_stats.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_linux_firefox_baseline.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_linux_firefox_stats.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_macos_chromium_baseline.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_macos_firefox_baseline.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_macos_firefox_stats.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stealth/test_tls_multi_dump_ios_apple_tls_stats.cpp

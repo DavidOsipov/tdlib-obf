@@ -14,6 +14,8 @@
 #include "td/mtproto/stealth/StealthRuntimeParams.h"
 #include "td/mtproto/stealth/TlsHelloProfileRegistry.h"
 
+#include "test/stealth/ech_route_failure_store_test_utils.h"
+
 #include "td/utils/common.h"
 #include "td/utils/ScopeGuard.h"
 #include "td/utils/tests.h"
@@ -28,12 +30,15 @@ using td::mtproto::stealth::DeviceClass;
 using td::mtproto::stealth::get_per_install_selection_salt;
 using td::mtproto::stealth::MobileOs;
 using td::mtproto::stealth::pick_runtime_profile;
+using td::mtproto::stealth::set_runtime_ech_failure_store;
 using td::mtproto::stealth::reset_per_install_selection_salt_for_tests;
 using td::mtproto::stealth::reset_runtime_stealth_params_for_tests;
 using td::mtproto::stealth::RuntimePlatformHints;
 using td::mtproto::stealth::set_per_install_selection_salt;
+using td::mtproto::test::EchRouteFailureMemoryKeyValue;
 
 constexpr td::int32 kUnixTime = 1712345678;
+constexpr td::Slice kPerInstallSelectionSaltStoreKey = "stealth_profile_selection_salt";
 
 RuntimePlatformHints linux_desktop() {
   return RuntimePlatformHints{DeviceClass::Desktop, MobileOs::None, DesktopOs::Linux};
@@ -76,6 +81,42 @@ TEST(PerInstallSelectionEntropy, FixedSaltIsDeterministicAndZeroSaltIsBaseline) 
   auto salted_a = pick_runtime_profile("dest.example.com", kUnixTime, linux_desktop());
   auto salted_b = pick_runtime_profile("dest.example.com", kUnixTime, linux_desktop());
   ASSERT_TRUE(salted_a == salted_b);
+}
+
+TEST(PerInstallSelectionEntropy, StoreMintsAndPersistsStableSaltWhenUnset) {
+  reset_runtime_stealth_params_for_tests();
+  reset_per_install_selection_salt_for_tests();
+  auto store = std::make_shared<EchRouteFailureMemoryKeyValue>();
+  SCOPE_EXIT {
+    set_runtime_ech_failure_store(nullptr);
+    reset_per_install_selection_salt_for_tests();
+  };
+
+  ASSERT_EQ(static_cast<td::uint64>(0), get_per_install_selection_salt());
+  ASSERT_TRUE(store->get(kPerInstallSelectionSaltStoreKey.str()).empty());
+
+  set_runtime_ech_failure_store(store);
+
+  auto minted = get_per_install_selection_salt();
+  ASSERT_TRUE(minted != 0);
+  ASSERT_EQ(td::to_string(minted), store->get(kPerInstallSelectionSaltStoreKey.str()));
+}
+
+TEST(PerInstallSelectionEntropy, StoreRestoresPersistedSaltIntoSelectionCache) {
+  reset_runtime_stealth_params_for_tests();
+  reset_per_install_selection_salt_for_tests();
+  auto store = std::make_shared<EchRouteFailureMemoryKeyValue>();
+  SCOPE_EXIT {
+    set_runtime_ech_failure_store(nullptr);
+    reset_per_install_selection_salt_for_tests();
+  };
+
+  constexpr td::uint64 kPersistedSalt = 0x123456789ABCDEF0ULL;
+  store->set(kPerInstallSelectionSaltStoreKey.str(), td::to_string(kPersistedSalt));
+
+  set_runtime_ech_failure_store(store);
+
+  ASSERT_EQ(kPersistedSalt, get_per_install_selection_salt());
 }
 
 }  // namespace

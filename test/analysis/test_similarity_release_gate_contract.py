@@ -43,3 +43,13 @@ class SimilarityReleaseGateContract(unittest.TestCase):
         self.assertIn("real-corpus similarity gate", combined)
         self.assertIn("seed-stress diagnostic", combined)
         self.assertIn("self-calibrated generator tests are not real-browser similarity evidence", combined)
+
+    def test_multi_dump_baseline_sources_are_wired_into_run_all_tests(self) -> None:
+        cmake_text = (REPO_ROOT / "test" / "CMakeLists.txt").read_text(encoding="utf-8")
+        required_sources = [
+            "test_tls_multi_dump_android_firefox_baseline.cpp",
+            "test_tls_multi_dump_macos_chromium_baseline.cpp",
+        ]
+
+        missing = [source for source in required_sources if source not in cmake_text]
+        self.assertEqual([], missing)

@@ -89,8 +89,12 @@ struct ProfileWeights final {
   uint8 chrome131{20};
   uint8 chrome120{15};
   uint8 chrome147_windows{50};
+  uint8 chromium_macos_no_alps{10};
+  uint8 chromium_macos_4469{25};
+  uint8 chromium_macos_44cd{35};
   uint8 chrome147_ios_chromium{30};
   uint8 firefox148{15};
+  uint8 firefox149_android{5};
   // Firefox 149 on macOS is a distinct fingerprint from Firefox 148 on Linux
   // (different cohort, ECH params). It gets its own weight slot so an operator
   // can tune or zero the macOS Firefox lane without also disabling the Linux
@@ -99,7 +103,8 @@ struct ProfileWeights final {
   uint8 firefox149_windows{15};
   uint8 safari26_3{20};
   uint8 ios14{70};
-  uint8 android11_okhttp_advisory{30};
+  uint8 android_chromium_alps{20};
+  uint8 android11_okhttp_advisory{10};
 };
 
 struct ProfileSpec final {

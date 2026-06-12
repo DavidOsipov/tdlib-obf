@@ -194,7 +194,7 @@ TEST(TlsGeneratorFixtureExactFieldsGate, ChromiumCatalogExtensionSetRejectsApple
 // is returned (see the lifecycle note on ParsedClientHello).
 ParsedClientHello make_supported_versions_hello(const td::vector<td::uint16> &versions) {
   ParsedClientHello hello;
-  auto buf = td::make_unique<td::string>();
+  auto buf = std::make_unique<td::string>();
   buf->push_back(static_cast<char>(versions.size() * 2));
   for (auto version : versions) {
     buf->push_back(static_cast<char>((version >> 8) & 0xFF));

@@ -13,10 +13,9 @@
 // Honest residual (documented, not a bug to "fix" by fabricating evidence): at
 // the default Unknown transport_confidence iOS still selects the advisory IOS14
 // lane — only a TlsOnly-claim profile may be used without confidence evidence, so
-// the advisory default is the conservative correct choice. And Android still has
-// no verified browser-capture profile, so its only lane is advisory; closing that
-// requires a real Android capture (a corpus/provenance task), and curating any
-// mobile profile as release_gating is a separate team decision.
+// the advisory default is the conservative correct choice. Android now carries a
+// reviewed ALPS-bearing Chromium lane, but it must remain unreachable at Unknown
+// confidence so the runtime stays fail-closed onto the advisory okhttp fallback.
 
 #include "td/mtproto/stealth/StealthRuntimeParams.h"
 #include "td/mtproto/stealth/TlsHelloProfileRegistry.h"
@@ -107,17 +106,51 @@ TEST(MobileReleaseGradeLane, IosDefaultsToAdvisoryLaneAtUnknownConfidence) {
   }
 }
 
-// Documented limitation: Android has no verified browser-capture profile, so its
-// only lane is the advisory okhttp profile at any confidence.
-TEST(MobileReleaseGradeLane, AndroidHasOnlyAdvisoryLane) {
+TEST(MobileReleaseGradeLane, AndroidChromiumLaneHasNonZeroEffectiveWeight) {
+  Guard guard;
+  auto weights = default_runtime_stealth_params().profile_weights;
+  ASSERT_TRUE(weights.android_chromium_alps > 0);
+  ASSERT_TRUE(weights.firefox149_android > 0);
+  ASSERT_TRUE(weights.android11_okhttp_advisory > 0);
+  ASSERT_EQ(30, weights.android_chromium_alps + weights.firefox149_android + weights.android11_okhttp_advisory);
+}
+
+TEST(MobileReleaseGradeLane, AndroidReachesVerifiedChromiumLaneAtEstablishedConfidence) {
   Guard guard;
   auto params = default_runtime_stealth_params();
   params.transport_confidence = TransportConfidence::Partial;
   params.platform_hints = android_platform();
   ASSERT_TRUE(set_runtime_stealth_params_for_tests(params).is_ok());
 
+  bool saw_android_chromium = false;
+  bool saw_android_firefox = false;
+  bool saw_advisory = false;
+  for (int i = 0; i < 512 && !(saw_android_chromium && saw_android_firefox && saw_advisory); i++) {
+    auto profile =
+        pick_runtime_profile("android-rel-" + td::to_string(i) + ".example", kUnixTime + i, android_platform());
+    if (profile == BrowserProfile::AndroidChromium_Alps) {
+      saw_android_chromium = true;
+    } else if (profile == BrowserProfile::Firefox149_Android) {
+      saw_android_firefox = true;
+    } else if (profile == BrowserProfile::Android11_OkHttp_Advisory) {
+      saw_advisory = true;
+    }
+  }
+  ASSERT_TRUE(saw_android_chromium);
+  ASSERT_TRUE(saw_android_firefox);
+  ASSERT_TRUE(saw_advisory);
+}
+
+TEST(MobileReleaseGradeLane, AndroidDefaultsToAdvisoryLaneAtUnknownConfidence) {
+  Guard guard;
+  auto params = default_runtime_stealth_params();
+  params.transport_confidence = TransportConfidence::Unknown;
+  params.platform_hints = android_platform();
+  ASSERT_TRUE(set_runtime_stealth_params_for_tests(params).is_ok());
+
   for (int i = 0; i < 128; i++) {
-    auto profile = pick_runtime_profile("android-" + td::to_string(i) + ".example", kUnixTime + i, android_platform());
+    auto profile =
+        pick_runtime_profile("android-unk-" + td::to_string(i) + ".example", kUnixTime + i, android_platform());
     ASSERT_TRUE(profile == BrowserProfile::Android11_OkHttp_Advisory);
   }
 }
