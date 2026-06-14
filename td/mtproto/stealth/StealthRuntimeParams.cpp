@@ -1,12 +1,13 @@
+// SPDX-FileCopyrightText: Copyright Aliaksei Levin (levlam@telegram.org), Arseny Smirnov (arseny30@gmail.com) 2014-2026
 // SPDX-FileCopyrightText: Copyright 2026 telemt community
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSL-1.0 AND MIT
 // telemt: https://github.com/telemt
 // telemt: https://t.me/telemtrs
 //
-
 #include "td/mtproto/stealth/StealthRuntimeParams.h"
 
 #include "td/mtproto/stealth/StealthConfig.h"
+#include "td/mtproto/stealth/TlsHelloProfileRegistry.h"
 
 #include <cmath>
 #include <memory>
@@ -72,11 +73,14 @@ ProfileWeights effective_profile_weights_for_platform(const RuntimeProfileSelect
   weights.chromium_macos_no_alps = policy.desktop_darwin.chrome120;
   weights.chromium_macos_4469 = policy.desktop_darwin.chrome131;
   weights.chromium_macos_44cd = policy.desktop_darwin.chrome133;
-  // Carve a slice of the iOS share for the verified iOS Chromium lane instead of
-  // pinning it to 0 (which left iOS with only the advisory utls IOS14 lane); the
-  // remainder stays with IOS14. Keeps the ios14+android policy schema unchanged.
+  // Carve slices of the iOS share for the verified iOS Chromium lane and the
+  // verified Apple iOS TLS lane instead of pinning them to 0 (which left iOS with
+  // only the advisory utls IOS14 lane); the remainder stays with IOS14. Keeps the
+  // ios14+android policy schema unchanged.
   auto ios_chromium_weight = static_cast<uint8>(policy.mobile.ios14 / kIosChromiumShareDivisor);
+  auto apple_ios_tls_weight = static_cast<uint8>(policy.mobile.ios14 / kAppleIosTlsShareDivisor);
   weights.chrome147_ios_chromium = ios_chromium_weight;
+  weights.apple_ios_tls = apple_ios_tls_weight;
   weights.firefox148 = desktop_weights->firefox148;
   // macOS Firefox (Firefox149_MacOS26_3) is the Firefox lane on Darwin desktop;
   // bridge it from the darwin policy's firefox ratio so it can be tuned
@@ -84,7 +88,7 @@ ProfileWeights effective_profile_weights_for_platform(const RuntimeProfileSelect
   // (like the windows lanes) but only selected where it is an allowed profile.
   weights.firefox149_macos26_3 = policy.desktop_darwin.firefox148;
   weights.safari26_3 = desktop_weights->safari26_3;
-  weights.ios14 = static_cast<uint8>(policy.mobile.ios14 - ios_chromium_weight);
+  weights.ios14 = static_cast<uint8>(policy.mobile.ios14 - ios_chromium_weight - apple_ios_tls_weight);
   auto android_chromium_alps_weight = static_cast<uint8>(
       policy.mobile.android11_okhttp_advisory * kAndroidChromiumVerifiedShareNumerator /
       kAndroidChromiumVerifiedShareDenominator);
@@ -173,6 +177,15 @@ Status validate_runtime_profile_selection_policy(const RuntimeProfileSelectionPo
   if (mobile_total != 100) {
     return Status::Error("profile_weights.mobile must sum to 100");
   }
+  // The iOS share is carved into the verified iOS Chromium and Apple iOS TLS lanes
+  // by integer division (ios14 / 7 each). For ios14 in [1, 6] both carves truncate
+  // to 0, silently collapsing iOS back onto the advisory IOS14 lane and re-opening
+  // the release-grade gap. Require either no iOS share or one large enough to keep
+  // both verified lanes reachable. (Explicit flat profile_weights configs set
+  // apple_ios_tls directly and are not affected by this policy-path floor.)
+  if (policy.mobile.ios14 != 0 && policy.mobile.ios14 < kIosChromiumShareDivisor) {
+    return Status::Error("profile_weights.mobile.ios14 must be 0 or at least 7 so the verified iOS lanes stay reachable");
+  }
   return Status::OK();
 }
 
@@ -199,9 +212,6 @@ error_from_owned_message(std::string message) {
 }
 
 Status validate_route_entry(Slice name, const RuntimeRoutePolicyEntry &entry, bool must_disable_ech) {
-  if (entry.allow_quic) {
-    return error_from_owned_message(name.str() + " must keep QUIC disabled");
-  }
   if (must_disable_ech && entry.ech_mode != EchMode::Disabled) {
     return error_from_owned_message(name.str() + " must disable ECH");
   }
@@ -216,7 +226,7 @@ Status validate_profile_weights(const ProfileWeights &weights) {
                        weights.chromium_macos_no_alps + weights.chromium_macos_4469 + weights.chromium_macos_44cd +
                        weights.chrome147_ios_chromium + weights.firefox148 + weights.firefox149_android +
                        weights.firefox149_macos26_3 + weights.firefox149_windows + weights.safari26_3 + weights.ios14 +
-                       weights.android_chromium_alps +
+                       weights.apple_ios_tls + weights.android_chromium_alps +
                        weights.android11_okhttp_advisory;
   if (total == 0) {
     return Status::Error("profile_weights must not be empty");
@@ -230,15 +240,15 @@ Status validate_allowed_profile_weights_for_platform(const ProfileWeights &weigh
   if (platform.device_class == DeviceClass::Mobile) {
     switch (platform.mobile_os) {
       case MobileOs::IOS:
-        allowed_total = weights.ios14 + weights.chrome147_ios_chromium;
+        allowed_total = weights.ios14 + weights.chrome147_ios_chromium + weights.apple_ios_tls;
         break;
       case MobileOs::Android:
         allowed_total = weights.android_chromium_alps + weights.firefox149_android + weights.android11_okhttp_advisory;
         break;
       case MobileOs::None:
       default:
-        allowed_total = weights.ios14 + weights.chrome147_ios_chromium + weights.android_chromium_alps +
-                        weights.firefox149_android + weights.android11_okhttp_advisory;
+        allowed_total = weights.ios14 + weights.chrome147_ios_chromium + weights.apple_ios_tls +
+                        weights.android_chromium_alps + weights.firefox149_android + weights.android11_okhttp_advisory;
         break;
     }
   } else if (platform.desktop_os == DesktopOs::Darwin) {
@@ -286,6 +296,8 @@ uint8 profile_weight_for_runtime_validation(const ProfileWeights &weights, Brows
       return weights.safari26_3;
     case BrowserProfile::IOS14:
       return weights.ios14;
+    case BrowserProfile::AppleIosTls:
+      return weights.apple_ios_tls;
     case BrowserProfile::AndroidChromium_Alps:
       return weights.android_chromium_alps;
     case BrowserProfile::Android11_OkHttp_Advisory:
@@ -341,6 +353,16 @@ Status validate_release_mode_profile_gating(const StealthRuntimeParams &params) 
   return Status::OK();
 }
 
+Status validate_per_install_selection_salt_requirement(const StealthRuntimeParams &params) {
+  if (!params.require_per_install_selection_salt) {
+    return Status::OK();
+  }
+  if (get_per_install_selection_salt() != 0) {
+    return Status::OK();
+  }
+  return Status::Error("require_per_install_selection_salt requires a non-zero per-install selection salt");
+}
+
 }  // namespace stealth_runtime_params_internal
 
 StealthRuntimeParams::StealthRuntimeParams() noexcept {
@@ -369,6 +391,7 @@ Status validate_runtime_stealth_params(const StealthRuntimeParams &params) noexc
                                                                                             params.platform_hints));
   TRY_STATUS(stealth_runtime_params_internal::validate_transport_confidence_profile_coverage(params));
   TRY_STATUS(stealth_runtime_params_internal::validate_release_mode_profile_gating(params));
+  TRY_STATUS(stealth_runtime_params_internal::validate_per_install_selection_salt_requirement(params));
   TRY_STATUS(
       stealth_runtime_params_internal::validate_route_entry("route_policy.unknown", params.route_policy.unknown, true));
   TRY_STATUS(stealth_runtime_params_internal::validate_route_entry("route_policy.ru", params.route_policy.ru, true));
@@ -384,6 +407,14 @@ Status validate_runtime_stealth_params(const StealthRuntimeParams &params) noexc
   }
   if (!params.route_failure.persist_across_restart) {
     return Status::Error("route_failure.persist_across_restart must stay enabled");
+  }
+  if (params.profile_rotation.failure_threshold < 2 || params.profile_rotation.failure_threshold > 8) {
+    return Status::Error("profile_rotation.failure_threshold must be within [2, 8]");
+  }
+  if (!std::isfinite(params.profile_rotation.quarantine_ttl_seconds) ||
+      params.profile_rotation.quarantine_ttl_seconds < 30.0 ||
+      params.profile_rotation.quarantine_ttl_seconds > 3600.0) {
+    return Status::Error("profile_rotation.quarantine_ttl_seconds must be within [30, 3600]");
   }
   if (params.bulk_threshold_bytes < 512 || params.bulk_threshold_bytes > (static_cast<size_t>(1) << 20)) {
     return Status::Error("bulk_threshold_bytes is out of allowed bounds");
