@@ -293,6 +293,7 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/phase1_restricted_rights_failclosed_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/phase1_poll_voter_visibility_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/phase1_bot_access_settings_failclosed_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/phase2_chatjoin_guardbot_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/invalid_file_id_handling_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/invalid_file_id_handling_adversarial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/invalid_file_id_handling_integration.cpp
