@@ -2492,7 +2492,7 @@ class WebPageBlockBlockQuoteBlocks final : public WebPageBlock {
   }
 
   void for_each_rich_text(const std::function<void(const RichText *text)> &callback) const final {
-    for (auto &page_block : page_blocks) {
+    for (auto &page_block : blocks) {
       page_block->for_each_rich_text(callback);
     }
     caption.for_each_rich_text(callback);
