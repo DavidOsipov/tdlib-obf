@@ -1,11 +1,21 @@
-PHASE 2 RESUME STATE (autocompact checkpoint)
-Branch: feat/upstream-backport-bulk  HEAD: 2ee0ba982b59753cae95bcf16958c546a1d19885
-Build env: docker container 'tdlib-build', clean-regen auto/ before build on .tl change, cherry-pick -Xno-renames
-Landed total: 116
+PHASE 2 RESUME STATE (rules-compliant; updated after chat-join)
+Branch: feat/upstream-backport-bulk  HEAD: 66d5659a6 (after chat-join epic + contract tests)
+Build env: docker container 'tdlib-build'; clean-regen auto/ (rm td_api/telegram_api .h/.hpp/split-cpp + tlo) before build on .tl change; cherry-pick -Xno-renames; build target tdcore then run_all_tests, --parallel 3; test filter is SUBSTRING (no '*').
+Base for diff: feat/adaptive-runtime-profile-rotation  (123 commits ahead)
 
-Epics done: live-location (11/11 GREEN)
-IN PROGRESS: chat-join/guard-bot — list in .epic_cj_shas.txt
-  RESUME AT: 0bb980a4c (Add toggleSupergroupJoinByRequest.guard_bot_user_id) — conflicts td_api.tl+ChatManager.{cpp,h}+Requests.cpp+cli.cpp
-  resolution principle: keep fork's encapsulated guard_bot helpers/seams; take HEAD where fork has its own form; td_api schema auto-merges.
-Remaining epics order: chat-join(rest) -> search-filter(14) -> webbrowser(10) -> WebPageBlock-refactor(16) -> rich-message(53) -> poll-media/W3-P(30)
-Deferred list: .skipped.txt | Phase1 closeout: docs/Plans/UPSTREAM_BACKPORT_PHASE1_CLOSEOUT_2026-06-16.md
+EPICS DONE:
+- live-location (11 landed) GREEN
+- chat-join/guard-bot (20 SHAs): 5 LANDED (0f7e3039f Add updateChatJoinResult; a7da7bac6 guard_bot doc;
+  148664613 webAppUrl+same_origin; 076a33521 updateChatJoinResult doc; 10d57f3db chatJoinResultDeclined),
+  15 confirmed exact_present in fork (recon-verified, NOT reimplemented), contract test 66d5659a6 (5/5 PASS).
+  exact_present SHAs (recorded, not reimplemented): 10e9b54b0 56ba59d36 1f10692ff 0bb980a4c fb67035fd
+  077f71add 4026e717b 9bde7aa70 733abb891 c9031f98b b64291cda 3c5f004a4 099039a73 63eb20eec 9a5604f5b
+
+IN PROGRESS: search-type-filter epic (6 commits, recon wf_b67f64c6-f9e)
+  order: 316e93443 DialogTypeFilter -> bdf910f19 searchPublicChats.type_filter -> e58779017 searchChatsOnServer.type_filter
+         -> 9ec11ab28 searchRecentlyFoundChats.type_filter -> 21cbc0d17 MOVE search_dialogs to DialogManager (refactor, risky)
+         -> 26d8c6a81 searchChats.type_filter
+  fork state: search_dialogs in MessagesManager.cpp (move not done); found_public_dialogs_ FlatHashMap in DialogManager.h:411 (old shape); searchChatsOnServer has NO type_filter -> epic is genuinely MISSING.
+
+REMAINING EPICS order: search-filter(6) -> webbrowser(10) -> WebPageBlock-refactor(16) -> rich-message(53) -> poll-media/W3-P(30)
+RULES: prompt (2).md — semantic status per commit; tests BEFORE pick (red->green); fail-closed preserved; small waves; no curl; build serially.
