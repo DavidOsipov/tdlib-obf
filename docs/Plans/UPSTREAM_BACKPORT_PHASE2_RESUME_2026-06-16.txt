@@ -1,0 +1,11 @@
+PHASE 2 RESUME STATE (autocompact checkpoint)
+Branch: feat/upstream-backport-bulk  HEAD: 2ee0ba982b59753cae95bcf16958c546a1d19885
+Build env: docker container 'tdlib-build', clean-regen auto/ before build on .tl change, cherry-pick -Xno-renames
+Landed total: 116
+
+Epics done: live-location (11/11 GREEN)
+IN PROGRESS: chat-join/guard-bot — list in .epic_cj_shas.txt
+  RESUME AT: 0bb980a4c (Add toggleSupergroupJoinByRequest.guard_bot_user_id) — conflicts td_api.tl+ChatManager.{cpp,h}+Requests.cpp+cli.cpp
+  resolution principle: keep fork's encapsulated guard_bot helpers/seams; take HEAD where fork has its own form; td_api schema auto-merges.
+Remaining epics order: chat-join(rest) -> search-filter(14) -> webbrowser(10) -> WebPageBlock-refactor(16) -> rich-message(53) -> poll-media/W3-P(30)
+Deferred list: .skipped.txt | Phase1 closeout: docs/Plans/UPSTREAM_BACKPORT_PHASE1_CLOSEOUT_2026-06-16.md
