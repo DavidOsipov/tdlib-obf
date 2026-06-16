@@ -11,7 +11,6 @@
 #include "td/telegram/InputMessageText.hpp"
 #include "td/telegram/MessageId.h"
 #include "td/telegram/MessageInputReplyTo.hpp"
-#include "td/telegram/RichMessage.hpp"
 #include "td/telegram/SuggestedPost.hpp"
 #include "td/telegram/Version.h"
 
