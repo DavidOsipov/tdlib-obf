@@ -297,6 +297,7 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/phase2_search_type_filter_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/phase2_webbrowser_failclosed_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/phase2_instant_view_schema_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/phase2_poll_media_failsafe_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/invalid_file_id_handling_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/invalid_file_id_handling_adversarial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/invalid_file_id_handling_integration.cpp

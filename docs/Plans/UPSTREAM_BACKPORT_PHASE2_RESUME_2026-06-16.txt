@@ -1,19 +1,22 @@
-PHASE 2 RESUME STATE (updated after instant-view RENDER batch)
-Branch: feat/upstream-backport-bulk  HEAD: ec6abea4d (+ pending test commit)
-Build: docker 'tdlib-build'; clean-regen auto/ on .tl change; cherry-pick -Xno-renames; tdcore then run_all_tests; test filter SUBSTRING.
+PHASE 2 RESUME STATE (updated after poll-media render refactor)
+Branch: feat/upstream-backport-bulk  HEAD: 86a5ec2b3 (+ pending test commit)
+Build: docker 'tdlib-build'; clean-regen auto/ on .tl change; -Xno-renames; tdcore then run_all_tests; SUBSTRING filter.
 
 EPICS DONE (Phase2): live-location(11); chat-join(5/15 present); search-filter(6); webbrowser(12/5 present);
-  instant-view RENDER: RichText sub-batch(8 picks of 23) + PageBlock RENDER sub-batch(5 picks of 26: ca67bf738
-  4f3676d76 8df09c1ba 39d166296 108b33f15). Contracts: chatjoin 5/5, search 4/4, webbrowser 3/3, instant-view 2/2.
+  instant-view RENDER (RichText 8 + PageBlock render 5); poll-media RENDER (2: d549c79d7 PollMedia base, ef5759d20).
+  Contracts GREEN: chatjoin 5/5, search 4/4, webbrowser 3/3, instant-view 2/2, poll-failsafe 1/1, W3-P 1/1.
 
-*** DEFERRED — rich-message SEND/content cluster (HIGH-RISK, non-mission, fork fully behind) ***
-  726b15907 (get_input_page_block) + clone() infra: clone() impls come from 48f727bb1 "Implement RichMessage::clone()"
-  which is part of the messageRichMessage CONTENT-TYPE epic the fork lacks entirely (no RichMessage.cpp). Applying
-  726b15907 alone makes all ~33 WebPageBlock subtypes ABSTRACT (clone()=0 pure virtual w/o impls). Tightly coupled:
-  get_input_page_block <-> clone <-> RichMessage type <-> input types (inputAnimation/Audio/Document/Photo/Video).
-  ALSO deferred: aa2d3178b (pageBlockAnimation.has_spoiler — entangled with animation clone/get_input_page_block).
-  Decision pending from user: force the whole SEND cluster (~30 commits, manual reconstruction, serialization risk) vs defer.
+*** DEFERRED clusters (HIGH-RISK / non-mission / fork structurally behind) ***
+1. rich-message SEND/content: 726b15907 get_input_page_block + clone() infra (clone impls from 48f727bb1
+   "Implement RichMessage::clone()" = messageRichMessage content-type epic fork lacks). Forcing makes ~33
+   WebPageBlock subtypes abstract. Tangled with input types + messageRichMessage. ~30 commits.
+2. poll-media SEND/links: pollMediaLink(984e1f2b4), InputPollMedia(3b0d5e432), inputPollMediaLink(a2b0e37ad),
+   web-pages-in-polls (d02fe8bbe get_poll_web_page_ids, 7b7f7cf21, 002d49193, 31c1a0222), can_see_results
+   (0d1e95e89 — schema behind; W3-P recent_voters.clear() guard MUST be kept byte-exact if ever backported),
+   merge_message_contents (3f66d431a needs get_individual_message_content_refs). ~11 commits, entangled w/ web-page infra.
+   Decision recorded: deferred per fork-safety (user delegated "решай по правилам").
 
-REMAINING: rich-message SEND/content(~30, deferred pending decision); poll-media/W3-P(22, security-relevant);
-  misc-functional(12); NONFUNC(19 skip).
-RULES: prompt (2).md — fork-safety > upstream-purity; semantic status; tests before pick; preserve fail-closed.
+REMAINING: misc-functional(~12, mixed: some entangled e.g. e80270f4c get_input_page_table_cell needs deferred
+  get_input_page_block; some standalone e.g. f46b58926 checkAuthenticationWebToken, a3349d3c8 tonsite, 1ab169454
+  app config, 912b29b8a source param); NONFUNC(19 skip); the two deferred SEND clusters above.
+RULES: prompt (2).md — fork-safety > upstream-purity; semantic status; tests before pick; preserve fail-closed (W3-P).
