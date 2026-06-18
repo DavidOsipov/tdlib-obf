@@ -10656,7 +10656,7 @@ unique_ptr<MessageContent> get_action_message_content(Td *td, tl_object_ptr<tele
       }
       auto items =
           transform(std::move(action->list_), [message_date, user_manager = td->user_manager_.get()](auto &&item) {
-            return ToDoItem(user_manager, std::move(item), message_date);
+            return ToDoItem(user_manager, std::forward<decltype(item)>(item), message_date);
           });
       return td::make_unique<MessageTodoAppendTasks>(reply_to_message_id, std::move(items));
     }
