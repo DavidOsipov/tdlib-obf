@@ -156,7 +156,8 @@ If the change is wrong, write the smallest failing test first in a separate file
 
 Run:
 ```bash
-./build/test/run_all_tests --filter 'ManagedBotCreatedDependency|call_notification_send_closure_later'
+./build/test/run_all_tests --filter ManagedBotCreatedDependency
+./build/test/run_all_tests --filter CallNotificationSendClosureLater
 ```
 Expected: either green, or a single reproducible failure that maps to one concrete contract gap.
 

@@ -24,4 +24,22 @@ TEST(ManagedBotCreatedDependencyRuntime, MinUserIdsExposeManagedBotReferenceAtRu
   ASSERT_EQ(td::UserId(static_cast<td::int64>(777002)), user_ids[0]);
 }
 
+TEST(ManagedBotCreatedDependencyRuntime, InvalidBotUserIdIsIgnoredByDependencySeam) {
+  td::Dependencies dependencies;
+  td::add_managed_bot_created_dependencies(dependencies, td::UserId());
+
+  ASSERT_TRUE(dependencies.get_user_ids().empty());
+}
+
+TEST(ManagedBotCreatedDependencyRuntime, DuplicateBotUserIdCollapsesToSingleDependency) {
+  td::Dependencies dependencies;
+  auto bot_user_id = td::UserId(static_cast<td::int64>(777003));
+
+  td::add_managed_bot_created_dependencies(dependencies, bot_user_id);
+  td::add_managed_bot_created_dependencies(dependencies, bot_user_id);
+
+  ASSERT_EQ(1u, dependencies.get_user_ids().size());
+  ASSERT_TRUE(dependencies.get_user_ids().count(bot_user_id) == 1);
+}
+
 }  // namespace
