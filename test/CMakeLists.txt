@@ -296,6 +296,7 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/parse_dialog_repair_refetch_stress.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/call_notification_send_closure_later_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/call_notification_send_closure_later_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/call_notification_send_closure_later_integration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/call_notification_send_closure_later_runtime.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialog_action_equality_fields_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dialog_action_equality_fields_runtime.cpp
