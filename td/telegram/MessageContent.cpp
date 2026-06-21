@@ -12,6 +12,7 @@
 #include "td/telegram/AudiosManager.h"
 #include "td/telegram/AudiosManager.hpp"
 #include "td/telegram/AuthManager.h"
+#include "td/telegram/BackportTestSeams.h"
 #include "td/telegram/Birthdate.h"
 #include "td/telegram/Birthdate.hpp"
 #include "td/telegram/CallActor.h"
@@ -6812,7 +6813,7 @@ vector<UserId> get_message_content_min_user_ids(const Td *td, const MessageConte
       break;
     case MessageContentType::ManagedBotCreated: {
       const auto *content = static_cast<const MessageManagedBotCreated *>(message_content);
-      return {content->bot_user_id};
+      return get_managed_bot_created_min_user_ids(content->bot_user_id);
     }
     case MessageContentType::PollAppendAnswer:
       break;
@@ -12956,7 +12957,7 @@ void add_message_content_dependencies(Dependencies &dependencies, const MessageC
       break;
     case MessageContentType::ManagedBotCreated: {
       const auto *content = static_cast<const MessageManagedBotCreated *>(message_content);
-      dependencies.add(content->bot_user_id);
+      add_managed_bot_created_dependencies(dependencies, content->bot_user_id);
       break;
     }
     case MessageContentType::PollAppendAnswer:
