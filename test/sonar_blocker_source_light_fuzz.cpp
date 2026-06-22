@@ -8,12 +8,18 @@
 #include "td/utils/port/IPAddress.h"
 #include "test/stealth/SourceContractFileReader.h"
 
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
 #include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#endif
+
 #include <array>
 #include <cstring>
-#include <netinet/in.h>
 #include <string_view>
-#include <sys/socket.h>
 
 namespace {
 

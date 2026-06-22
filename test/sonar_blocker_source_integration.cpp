@@ -97,9 +97,15 @@ TEST(SonarBlockerSourceIntegration, star_manager_leaf_transaction_direction_hand
 // ---------------------------------------------------------------------------
 
 #include "td/utils/port/IPAddress.h"
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#endif
 
 TEST(SonarBlockerSourceIntegration, ipv6_equality_identical_addresses_are_equal) {
   td::IPAddress a, b;

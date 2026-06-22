@@ -16,7 +16,7 @@ TEST(PollOptionEntitiesAdversarial, MixedEntityPayloadNeverLeaksNonCustomEntitie
   td::FormattedText text;
   text.text = "abcdefghijklmnopqrstuvwxyz";
 
-  td::size_t expected_custom_count = 0;
+  std::size_t expected_custom_count = 0;
   for (td::int32 i = 0; i < 26; i++) {
     if ((i % 4) == 0) {
       text.entities.emplace_back(td::MessageEntity::Type::CustomEmoji, i, 1,

@@ -30,7 +30,7 @@ TEST(PollOptionEntitiesStress, LargeEntityPayloadsRemainDeterministicAcrossRepea
     }
   }
 
-  td::size_t expected_custom_count = 0;
+  std::size_t expected_custom_count = 0;
   for (const auto &entity : base_text.entities) {
     if (entity.type == CustomEmoji) {
       expected_custom_count++;

@@ -10,9 +10,9 @@
 
 namespace {
 
-td::size_t count_substring_occurrences(const td::string &source, td::Slice needle) {
-  td::size_t count = 0;
-  td::size_t pos = 0;
+std::size_t count_substring_occurrences(const td::string &source, td::Slice needle) {
+  std::size_t count = 0;
+  std::size_t pos = 0;
   while (true) {
     pos = source.find(needle.str(), pos);
     if (pos == td::string::npos) {

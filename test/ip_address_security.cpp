@@ -10,10 +10,16 @@
 #include "td/utils/Random.h"
 #include "td/utils/tests.h"
 
-#include <arpa/inet.h>
 #include <cstring>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#endif
 
 TEST(IPAddressSecurity, init_sockaddr_accepts_valid_ipv4) {
   td::IPAddress ip_address;
