@@ -317,27 +317,119 @@ class ReleaseCohortIdentityContractTest(unittest.TestCase):
                 )
 
     def test_modern_ios26_baselines_have_mlkem_in_supported_groups(self) -> None:
-        """Baselines built purely from iOS 26+ Safari samples should include
-        the ML-KEM group 0x11EC in their invariants supported_groups list."""
-        # Collect apple_ios_tls baselines and check that at least one
-        # has 0x11EC in its invariants.
-        apple_baselines = [
-            b for b in self.ios_baselines
+        """A baseline built purely from iOS 26+ apple_ios_tls samples MUST
+        carry the X25519MLKEM768 hybrid group (0x11EC == 4588) in its
+        supported_groups invariant, and list it first (the preferred group),
+        matching the real iOS 26 ClientHello.
+
+        Note: the merged-corpus baseline (self.ios_baselines) degrades
+        supported_groups to [] because the 3 legacy samples lack ML-KEM, so
+        this contract is asserted against a modern-only cohort. The previous
+        version of this test inspected the always-degraded merged invariant
+        and asserted nothing (the `if sg:` body never executed)."""
+        ml_kem = int("0x11EC", 16)
+        samples = baselines_mod.load_samples(IOS_FIXTURES_DIR)
+        modern = [
+            s for s in samples
+            if s["family_id"] == "apple_ios_tls"
+               and s["route_lane"] == "non_ru_egress"
+               and _is_modern_ios(s["profile_id"])
+        ]
+        self.assertTrue(modern, "no modern iOS26 apple_ios_tls samples found")
+        modern_baselines = [
+            b for b in baselines_mod.build_baselines(modern)
             if b.get("family_id") == "apple_ios_tls"
                and b.get("route_lane") == "non_ru_egress"
         ]
-        self.assertTrue(apple_baselines, "no apple_ios_tls baselines found")
-        # The corpus mixes legacy and modern so the merged invariant for
-        # supported_groups may be empty (common_list returns [] when samples
-        # disagree). Verify this protective behavior: if legacy and modern
-        # samples both exist, the exact invariant must degrade to empty OR
-        # the invariant must list 0x11EC only when all samples agree.
-        for baseline in apple_baselines:
-            inv = baseline.get("invariants", {})
-            sg = inv.get("supported_groups", [])
-            if sg:
-                # All samples agreed. Check consistency.
-                self.assertIsInstance(sg, list)
+        self.assertTrue(
+            modern_baselines,
+            "modern-only cohort produced no apple_ios_tls baseline",
+        )
+        for baseline in modern_baselines:
+            sg = baseline.get("invariants", {}).get("supported_groups", [])
+            self.assertTrue(
+                sg, msg="modern-only supported_groups invariant must not be empty"
+            )
+            self.assertIn(
+                ml_kem, sg,
+                msg=(
+                    "modern iOS26 baseline must advertise ML-KEM group "
+                    f"0x11EC ({ml_kem}); got {sg}"
+                ),
+            )
+            self.assertEqual(
+                sg[0], ml_kem,
+                msg=(
+                    "ML-KEM (0x11EC) must be the first/preferred supported "
+                    f"group in the modern iOS26 baseline; got {sg}"
+                ),
+            )
+
+    def test_every_modern_ios26_sample_carries_mlkem_marker(self) -> None:
+        """Adversarial / anti-downgrade: every modern iOS26 apple_ios_tls
+        sample must individually carry the ML-KEM marker 0x11EC in its
+        non_grease_supported_groups. A single fixture that silently dropped
+        ML-KEM (a post-quantum downgrade) would otherwise be masked by the
+        merged invariant degrading to [] and slip past the contract above."""
+        ml_kem_hex = "0x11ec"
+        checked = 0
+        for artifact in self.ios_fixtures:
+            profile_id = str(artifact.get("profile_id", ""))
+            if not _is_modern_ios(profile_id):
+                continue
+            for sample in artifact.get("samples", []):
+                groups = [
+                    str(g).lower()
+                    for g in sample.get("non_grease_supported_groups", [])
+                ]
+                checked += 1
+                self.assertIn(
+                    ml_kem_hex, groups,
+                    msg=(
+                        f"modern iOS26 fixture {profile_id} sample "
+                        f"{sample.get('fixture_id', '?')} is missing ML-KEM "
+                        f"group 0x11EC (post-quantum downgrade?); groups={groups}"
+                    ),
+                )
+        self.assertGreater(checked, 0, "no modern iOS26 samples were checked")
+
+    def test_mlkem_distinguishes_modern_from_legacy_cohort(self) -> None:
+        """Differential: ML-KEM (0x11EC == 4588) is the discriminator between
+        the legacy and modern iOS apple_ios_tls cohorts. A baseline built from
+        modern-only samples MUST contain it; a baseline built from legacy-only
+        samples MUST NOT. This pins the assumption shared by the
+        legacy-exclusion and mixed-cohort-degradation tests."""
+        ml_kem = int("0x11EC", 16)
+        samples = baselines_mod.load_samples(IOS_FIXTURES_DIR)
+
+        def is_apple(sample: dict[str, Any]) -> bool:
+            return (
+                sample["family_id"] == "apple_ios_tls"
+                and sample["route_lane"] == "non_ru_egress"
+            )
+
+        modern = [s for s in samples if is_apple(s) and _is_modern_ios(s["profile_id"])]
+        legacy = [s for s in samples if is_apple(s) and _is_legacy_ios(s["profile_id"])]
+        self.assertTrue(modern, "no modern iOS26 apple_ios_tls samples found")
+        self.assertTrue(legacy, "no legacy iOS apple_ios_tls samples found")
+
+        def supported_groups(subset: list[dict[str, Any]]) -> list[int]:
+            built = [
+                b for b in baselines_mod.build_baselines(subset)
+                if b.get("family_id") == "apple_ios_tls"
+                   and b.get("route_lane") == "non_ru_egress"
+            ]
+            self.assertTrue(built, "cohort produced no apple_ios_tls baseline")
+            return built[0].get("invariants", {}).get("supported_groups", [])
+
+        self.assertIn(
+            ml_kem, supported_groups(modern),
+            msg="modern-only cohort must advertise ML-KEM 0x11EC",
+        )
+        self.assertNotIn(
+            ml_kem, supported_groups(legacy),
+            msg="legacy-only cohort must NOT advertise ML-KEM 0x11EC",
+        )
 
     # -- mixed-cohort blocking ----------------------------------------------
 

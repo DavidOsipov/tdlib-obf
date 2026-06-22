@@ -6,10 +6,23 @@
 from __future__ import annotations
 
 import pathlib
+import re
 import unittest
 
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
+
+# A release-similarity test must fail closed (assert) rather than silently
+# `return;` when its real-corpus baseline is empty/unreviewed. This matches a
+# bare `return;` whose trailing line-comment signals a pending/unpopulated
+# baseline, robustly to rewording (the previous version only matched three
+# exact comment strings, so a reworded skip-stub would have slipped through).
+_PENDING_RETURN_RE = re.compile(
+    r"return\s*;\s*//[^\n]*"
+    r"(not yet reviewed|review still in progress|not yet populated"
+    r"|baseline not (?:yet )?populated|corpus not yet|pending review)",
+    re.IGNORECASE,
+)
 
 
 class SimilarityReleaseGateContract(unittest.TestCase):
@@ -20,18 +33,30 @@ class SimilarityReleaseGateContract(unittest.TestCase):
             REPO_ROOT / "test" / "stealth" / "test_tls_generator_fixture_exact_fields_gate.cpp",
             REPO_ROOT / "test" / "stealth" / "test_tls_generator_wire_length_fixture_gate.cpp",
         ]
+        # Fail closed on a renamed/deleted gate target: a missing file must
+        # not silently pass (the previous `if not path.exists(): continue`
+        # tolerated exactly that and would mask a gate that lost its subject).
+        missing = [
+            str(path.relative_to(REPO_ROOT))
+            for path in checked_files
+            if not path.exists()
+        ]
+        self.assertEqual(
+            [], missing,
+            msg=f"release-similarity gate targets no longer exist: {missing}",
+        )
         offenders: list[str] = []
         for path in checked_files:
-            if not path.exists():
-                continue
             text = path.read_text(encoding="utf-8")
-            if "return;  // Corpus not yet reviewed" in text:
+            if _PENDING_RETURN_RE.search(text):
                 offenders.append(str(path.relative_to(REPO_ROOT)))
-            if "return;  // Linux baseline not yet populated" in text:
-                offenders.append(str(path.relative_to(REPO_ROOT)))
-            if "Baseline review still in progress" in text:
-                offenders.append(str(path.relative_to(REPO_ROOT)))
-        self.assertEqual([], offenders)
+        self.assertEqual(
+            [], offenders,
+            msg=(
+                "release-similarity tests must assert (fail closed) instead "
+                f"of returning on an empty/unreviewed baseline: {offenders}"
+            ),
+        )
 
     def test_docs_separate_similarity_gates_from_seed_stress(self) -> None:
         pipeline = (REPO_ROOT / "docs" / "Documentation" / "FINGERPRINT_GENERATION_PIPELINE.md").read_text(
