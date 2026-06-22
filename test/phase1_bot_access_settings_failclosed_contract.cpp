@@ -34,21 +34,21 @@ td::string normalize_for_contract(td::Slice source) {
 }
 
 // Phase-1 backport guard for upstream b22850524 ("Return UserId from on_get_user").
-// on_get_user now returns the UserId (and get_user_id became private); the conflict was resolved by
-// switching the W6-M managed-bot access-settings restricted-user path to on_get_user WHILE preserving
-// the fork's fail-closed validation. This pins that contract: an invalid added user MUST set an error,
-// clear the accumulated user ids, and return (no partial/permissive bot-access settings).
+// In this fork, the managed-bot access-settings server-payload path must remain fail-closed even when no
+// live Td/UserManager context is available. That means the raw server user must be validated first, and only
+// then normalized through on_get_user. This pins that ordering: an invalid added user MUST set an error,
+// clear the accumulated user ids, and return (no partial/permissive bot-access settings, no null-td deref).
 TEST(Phase1BotAccessSettingsFailClosedContract, InvalidAddedUserFailsClosed) {
   auto src = td::mtproto::test::read_repo_text_file("td/telegram/BotAccessSettings.cpp");
   auto region = extract_region(src, "if (is_restricted_) {", "added_user_ids_.push_back(user_id);");
   auto n = normalize_for_contract(region);
-  // registers/returns the user id via on_get_user (post-backport API), not the now-private get_user_id
-  ASSERT_TRUE(n.find("autouser_id=td->user_manager_->on_get_user(std::move(user),\"BotAccessSettings\")") !=
-              td::string::npos);
-  ASSERT_TRUE(n.find("UserManager::get_user_id(user)") == td::string::npos);
+  ASSERT_TRUE(n.find("autouser_id=get_server_user_id(user);") != td::string::npos);
   // fail-closed on invalid user: error + clear + return
   ASSERT_TRUE(n.find("if(!user_id.is_valid()){") != td::string::npos);
   ASSERT_TRUE(n.find("added_user_ids_.clear();return;") != td::string::npos);
+  // only valid users may reach normalization/storage
+  ASSERT_TRUE(n.find("CHECK(td!=nullptr);") != td::string::npos);
+  ASSERT_TRUE(n.find("td->user_manager_->on_get_user(std::move(user),\"BotAccessSettings\");") != td::string::npos);
 }
 
 }  // namespace

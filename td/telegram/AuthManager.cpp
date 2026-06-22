@@ -1,8 +1,8 @@
-//
-// Copyright Aliaksei Levin (levlam@telegram.org), Arseny Smirnov (arseny30@gmail.com) 2014-2026
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+// SPDX-FileCopyrightText: Copyright Aliaksei Levin (levlam@telegram.org), Arseny Smirnov (arseny30@gmail.com) 2014-2026
+// SPDX-FileCopyrightText: Copyright 2026 telemt community
+// SPDX-License-Identifier: BSL-1.0 AND MIT
+// telemt: https://github.com/telemt
+// telemt: https://t.me/telemtrs
 //
 #include "td/telegram/AuthManager.h"
 
@@ -505,6 +505,7 @@ void AuthManager::request_qr_code_authentication(uint64 query_id, vector<UserId>
   terms_of_service_ = TermsOfService();
   passkey_parameters_ = {};
   web_token_ = {};
+  web_token_dc_id_ = 0;
   was_qr_code_request_ = true;
 
   on_new_query(query_id);
@@ -581,6 +582,7 @@ void AuthManager::finish_passkey_login(uint64 query_id, const string &passkey_id
   terms_of_service_ = TermsOfService();
   passkey_parameters_ = PasskeyParameters(passkey_id, client_data, authenticator_data, signature, user_handle);
   web_token_ = {};
+  web_token_dc_id_ = 0;
   was_passkey_login_request_ = true;
 
   on_new_query(query_id);
@@ -624,7 +626,7 @@ void AuthManager::import_web_token_authorization(uint64 query_id, const string &
   passkey_parameters_ = {};
   web_token_ = token;
   web_token_dc_id_ = dc_id;
-  was_web_token_login_request_ = false;
+  was_web_token_login_request_ = true;
 
   on_new_query(query_id);
 
@@ -690,6 +692,7 @@ void AuthManager::set_phone_number(uint64 query_id, string phone_number,
     terms_of_service_ = TermsOfService();
     passkey_parameters_ = {};
     web_token_ = {};
+    web_token_dc_id_ = 0;
   }
 
   on_new_query(query_id);
@@ -1340,6 +1343,9 @@ void AuthManager::on_get_password_result(NetQueryPtr &&net_query) {
   if (imported_dc_id_ != -1) {
     G()->net_query_dispatcher().set_main_dc_id(imported_dc_id_);
     imported_dc_id_ = -1;
+  } else if (web_token_dc_id_ != 0) {
+    G()->net_query_dispatcher().set_main_dc_id(web_token_dc_id_);
+    web_token_dc_id_ = 0;
   }
 
   if (state_ == State::WaitPassword && checking_password_) {
@@ -1599,9 +1605,12 @@ void AuthManager::reset_wait_phone_number_query_state() {
   send_code_helper_ = SendCodeHelper();
   terms_of_service_ = TermsOfService();
   passkey_parameters_ = {};
+  web_token_ = {};
   was_qr_code_request_ = false;
   was_passkey_login_request_ = false;
+  was_web_token_login_request_ = false;
   was_check_bot_token_ = false;
+  web_token_dc_id_ = 0;
 }
 
 bool AuthManager::should_request_password_on_error(NetQueryType type, const Status &error) {
@@ -1619,6 +1628,7 @@ bool AuthManager::should_request_password_on_error(NetQueryType type, const Stat
     case RequestQrCode:
     case ImportQrCode:
     case FinishPasskeyLogin:
+    case ImportWebTokenAuthorization:
       return true;
     default:
       return false;
@@ -1632,6 +1642,9 @@ void AuthManager::start_get_password_query(NetQueryType type, NetQueryPtr &net_q
   if (type == ImportQrCode) {
     CHECK(DcId::is_valid(imported_dc_id_));
     dc_id = DcId::internal(imported_dc_id_);
+  } else if (type == ImportWebTokenAuthorization) {
+    CHECK(DcId::is_valid(web_token_dc_id_));
+    dc_id = DcId::internal(web_token_dc_id_);
   }
   net_query->clear();
   start_net_query(GetPassword, G()->net_query_creator().create_unauth(telegram_api::account_getPassword(), dc_id));

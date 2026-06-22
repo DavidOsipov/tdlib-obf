@@ -23,7 +23,6 @@ void BusinessConnectedBot::store(StorerT &storer) const {
   bool has_device = !device_.empty();
   bool has_location = !location_.empty();
   bool has_date = date_ != 0;
-  string location_;
   BEGIN_STORE_FLAGS();
   STORE_FLAG(can_reply);
   STORE_FLAG(has_rights);

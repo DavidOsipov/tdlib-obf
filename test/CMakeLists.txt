@@ -288,6 +288,11 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/managed_bot_created_dependency_adversarial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/managed_bot_created_dependency_integration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/managed_bot_created_dependency_runtime.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/business_connected_bot_info_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/business_connected_bot_info_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/business_connected_bot_info_integration.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/business_connected_bot_info_unit.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/business_connected_bot_info_light_fuzz.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/draft_local_reply_ignore_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/parse_dialog_repair_refetch_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/parse_dialog_repair_refetch_adversarial.cpp
@@ -311,6 +316,12 @@ set(TD_TEST_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/phase2_instant_view_schema_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/phase2_poll_media_failsafe_contract.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/phase2_web_token_auth_failclosed_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/phase2_web_token_auth_state_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/phase2_web_token_auth_state_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/phase2_web_token_auth_state_integration.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/phase2_web_token_password_fallback_contract.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/phase2_web_token_password_fallback_adversarial.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/phase2_web_token_password_fallback_integration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/video_alternative_properties_repair_adversarial.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/video_alternative_properties_repair_integration.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/video_alternative_properties_repair_runtime.cpp
