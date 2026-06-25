@@ -704,7 +704,8 @@ td_api::object_ptr<td_api::poll> PollManager::get_poll_object(PollId poll_id, co
 
   auto total_voter_count = poll->total_voter_count_ + voter_count_diff;
   auto can_get_voters = can_get_poll_voters(poll_id, poll) && is_real_message_content;
-  if (!can_get_voters && !td_->auth_manager_->is_bot()) {
+  auto can_see_results = can_get_voters || td_->auth_manager_->is_bot();
+  if (!can_see_results) {
     // hide the voter counts
     for (auto &poll_option : poll_options) {
       poll_option->voter_count_ = 0;
@@ -800,7 +801,7 @@ td_api::object_ptr<td_api::poll> PollManager::get_poll_object(PollId poll_id, co
 
   return td_api::make_object<td_api::poll>(
       poll_id.get(), get_formatted_text_object(nullptr, poll->question_, true, -1), std::move(poll_options),
-      total_voter_count, std::move(recent_voters), can_get_voters && !poll->is_anonymous_, poll->is_anonymous_,
+      total_voter_count, std::move(recent_voters), can_get_voters && !poll->is_anonymous_, can_see_results, poll->is_anonymous_,
       poll->allow_multiple_answers_, !poll->has_revoting_disabled_, std::move(option_order), std::move(poll_type),
       open_period, close_date, poll->is_closed_, std::move(vote_restriction_reason));
 }
