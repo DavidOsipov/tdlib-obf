@@ -23,5 +23,5 @@ TEST(AiComposeStylesConfigRemovalContract, ConfigManagerNoLongerConsumesAiCompos
 TEST(AiComposeStylesConfigRemovalContract, AppConfigVersionBumpsAfterRemovingAiComposeStylesConfigOption) {
   auto normalized = td::ai_compose_styles_config_removal_test::normalized_config_manager_h();
 
-  ASSERT_TRUE(normalized.find("staticconstexprint32CURRENT_VERSION=127;") != td::string::npos);
+  ASSERT_TRUE(normalized.find("staticconstexprint32CURRENT_VERSION=132;") != td::string::npos);
 }

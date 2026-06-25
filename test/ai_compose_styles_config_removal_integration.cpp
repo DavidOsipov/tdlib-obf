@@ -18,7 +18,7 @@ TEST(AiComposeStylesConfigRemovalIntegration, ConfigManagerRemovalAndVersionBump
       normalized_cpp.find(
           R"(send_closure(G()->translation_manager(),&TranslationManager::on_update_ai_compose_styles,std::move(ai_compose_styles));)") ==
       td::string::npos);
-  ASSERT_TRUE(normalized_h.find("staticconstexprint32CURRENT_VERSION=127;") != td::string::npos);
+  ASSERT_TRUE(normalized_h.find("staticconstexprint32CURRENT_VERSION=132;") != td::string::npos);
   ASSERT_TRUE(normalized_h.find("staticconstexprint32CURRENT_VERSION=120;") == td::string::npos);
 }
 

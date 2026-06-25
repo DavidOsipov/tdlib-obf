@@ -25,7 +25,7 @@ TEST(AiComposeStylesConfigRemovalLightFuzz, DeterministicLiteralMatrixPreservesR
   const auto normalized_cpp = td::ai_compose_styles_config_removal_test::normalized_config_manager_cpp();
   const auto normalized_h = td::ai_compose_styles_config_removal_test::normalized_config_manager_h();
 
-  ASSERT_TRUE(normalized_h.find("staticconstexprint32CURRENT_VERSION=127;") != td::string::npos);
+  ASSERT_TRUE(normalized_h.find("staticconstexprint32CURRENT_VERSION=132;") != td::string::npos);
 
   const std::array<SnippetCase, 7> cases = {{
       {false, "vector<string>ai_compose_styles;", false},
@@ -35,7 +35,7 @@ TEST(AiComposeStylesConfigRemovalLightFuzz, DeterministicLiteralMatrixPreservesR
        false},
       {false, R"({"music_search_username","audio_search_bot_username"})", true},
       {false, R"(if(key=="phone_country_iso2")", true},
-      {true, "staticconstexprint32CURRENT_VERSION=127;", true},
+      {true, "staticconstexprint32CURRENT_VERSION=132;", true},
       {true, "staticconstexprint32CURRENT_VERSION=120;", false},
   }};
 
