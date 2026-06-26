@@ -12,7 +12,7 @@ endif()
 
 project(
   TDLib
-  VERSION 1.8.63
+  VERSION 1.8.65
   LANGUAGES CXX C)
 
 if(MSVC AND CMAKE_GENERATOR MATCHES "NMake")
