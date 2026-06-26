@@ -363,6 +363,22 @@ if(TD_ZLIB_VERSION VERSION_LESS TD_ZLIB_MIN_VERSION)
   endif()
 endif()
 
+# Android NDK r27 (27.1.12297006) ships zlib 1.3.0.1 in its sysroot. tdlib-obf
+# only uses long-stable zlib APIs (deflate/inflate, gz*, crc32 — all present
+# since zlib 1.2.x), so it does not require any feature added in zlib 1.3.2. The
+# 1.3.2 desktop floor exists to dodge CVE-2026-22184 in zlib's contrib/untgz
+# helper, which is NOT compiled into Android builds. Relaxing the floor for
+# Android cross-compiles only is therefore safe; desktop builds stay strict.
+if(TD_ZLIB_VERSION VERSION_LESS TD_ZLIB_MIN_VERSION
+   AND NOT TD_ZLIB_VERSION_IS_ALLOWED
+   AND (ANDROID OR CMAKE_SYSTEM_NAME STREQUAL "Android"))
+  set(TD_ZLIB_VERSION_IS_ALLOWED ON)
+  message(
+    STATUS
+      "Allowing NDK sysroot zlib ${TD_ZLIB_VERSION} for Android build (desktop minimum ${TD_ZLIB_MIN_VERSION} relaxed for Android only; CVE-2026-22184 contrib/untgz is not built for Android)."
+  )
+endif()
+
 if(TD_ZLIB_VERSION VERSION_LESS TD_ZLIB_MIN_VERSION
    AND NOT TD_ZLIB_VERSION_IS_ALLOWED)
   message(
@@ -373,6 +389,28 @@ endif()
 
 message(
   STATUS "Found zlib ${TD_ZLIB_VERSION}: ${ZLIB_INCLUDE_DIR} ${ZLIB_LIBRARIES}")
+
+# Configure-time summary of the resolved Android toolchain and dependencies.
+# Printed only for Android cross-compiles so a downstream consumer can confirm
+# exactly which NDK, ABI, API level, zlib and OpenSSL the artifact was built
+# against (see docs/android-ndk27-build.md).
+if(ANDROID OR CMAKE_SYSTEM_NAME STREQUAL "Android")
+  message(STATUS "==== tdlib-obf Android build summary ====")
+  message(STATUS "  Android ABI:            ${ANDROID_ABI}")
+  message(STATUS "  Android API level:      ${ANDROID_PLATFORM} (native ${ANDROID_NATIVE_API_LEVEL})")
+  message(STATUS "  Android NDK:            ${ANDROID_NDK}")
+  message(STATUS "  Android NDK revision:   ${ANDROID_NDK_REVISION}")
+  message(STATUS "  C++ compiler:           ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+  message(STATUS "  C++ compiler path:      ${CMAKE_CXX_COMPILER}")
+  message(STATUS "  zlib version:           ${TD_ZLIB_VERSION}")
+  message(STATUS "  zlib include dir:       ${ZLIB_INCLUDE_DIR}")
+  message(STATUS "  zlib library:           ${ZLIB_LIBRARIES}")
+  message(STATUS "  OpenSSL version:        ${OPENSSL_VERSION}")
+  message(STATUS "  OpenSSL include dir:    ${OPENSSL_INCLUDE_DIR}")
+  message(STATUS "  OpenSSL libraries:      ${OPENSSL_LIBRARIES}")
+  message(STATUS "  tdlib-obf git revision: ${TD_GIT_COMMIT_HASH}")
+  message(STATUS "=========================================")
+endif()
 
 set(TDE2E_ENABLE_INSTALL
     ${TD_INSTALL_STATIC_LIBRARIES}

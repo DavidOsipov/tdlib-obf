@@ -47,17 +47,27 @@ inline LogMessageCallbackState make_log_message_callback_state(int max_verbosity
   return {max_verbosity_level, callback};
 }
 
-static std::atomic<std::shared_ptr<const LogMessageCallbackState>> log_message_callback_state{
+// std::atomic<std::shared_ptr<T>> (C++20) is rejected by the Android NDK r27
+// libc++ and by Apple libc++ because their atomic<shared_ptr> path applies the
+// _Atomic intrinsic to the non-trivially-copyable shared_ptr. Guard a plain
+// shared_ptr with a mutex instead: it is portable across libc++/libstdc++/MSVC
+// and preserves the exact load/store semantics. The state is published only via
+// set_log_message_callback() (rare) and read on the non-fatal log path, so the
+// added lock is off the FATAL path and negligible next to the log I/O.
+static std::mutex log_message_callback_state_mutex;
+static std::shared_ptr<const LogMessageCallbackState> log_message_callback_state{
     std::make_shared<const LogMessageCallbackState>(make_log_message_callback_state(-2, nullptr))};
 
 inline std::shared_ptr<const LogMessageCallbackState> load_log_message_callback_state() noexcept {
-  return log_message_callback_state.load(std::memory_order_acquire);
+  std::lock_guard<std::mutex> guard(log_message_callback_state_mutex);
+  return log_message_callback_state;
 }
 
 inline void store_log_message_callback_state(int max_verbosity_level, OnLogMessageCallback callback) noexcept {
-  log_message_callback_state.store(
-      std::make_shared<const LogMessageCallbackState>(make_log_message_callback_state(max_verbosity_level, callback)),
-      std::memory_order_release);
+  auto new_state =
+      std::make_shared<const LogMessageCallbackState>(make_log_message_callback_state(max_verbosity_level, callback));
+  std::lock_guard<std::mutex> guard(log_message_callback_state_mutex);
+  log_message_callback_state = std::move(new_state);
 }
 
 TD_THREAD_LOCAL bool is_in_log_message_callback = false;
