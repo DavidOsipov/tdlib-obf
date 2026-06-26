@@ -1,3 +1,92 @@
+## Upstream Intake Cycle (15 June 2026)
+
+Selective intake cycle over the post-baseline upstream delta. Provenance:
+
+- Upstream remote: `https://github.com/tdlib/td.git`
+- Baseline (lower bound): `upstream-baseline-2026-05-24-e0943d068ce9` →
+  `e0943d068ce90b5010f1aea946e6901e25b43bf6` (tdlib 1.8.64)
+- New tip (upper bound): `upstream-baseline-2026-06-15-a17f87c4cff7` →
+  `a17f87c4cff7b90b278d12b91ba0614383aaee82`
+- Comparison range: `e0943d068ce9..a17f87c4cff7` — **247 commits** (2026-05-19 → 2026-06-13)
+
+Plan and evidence: [docs/Plans/UPSTREAM_BACKPORT_PLAN_2026-06-15.md](docs/Plans/UPSTREAM_BACKPORT_PLAN_2026-06-15.md)
+and its Wave A addendum
+[docs/Plans/UPSTREAM_BACKPORT_PLAN_2026-06-15_WAVE_A_ADDENDUM.md](docs/Plans/UPSTREAM_BACKPORT_PLAN_2026-06-15_WAVE_A_ADDENDUM.md).
+
+### Backported commits this cycle (6 of 247)
+
+| Upstream SHA | Mode | Fork file | Summary |
+|---|---|---|---|
+| `84f21a1d8` | exact | `td/telegram/MessageContent.cpp` | `add_message_content_dependencies` resolves `bot_user_id` for ManagedBotCreated |
+| `a74cc9af8` | local-equivalent | `td/telegram/DraftMessage.hpp` | clear persisted-draft reply to local/yet-unsent same-chat message |
+| `dc73b3ca3` | local-equivalent | `td/telegram/MessagesManager.cpp` | DB-dialog repair re-fetches messages + reloads full dialog info |
+| `c3759d5c5` | exact | `td/telegram/CallActor.cpp` | pending-call notification posted via `send_closure_later` |
+| `e95e1fd0d` | local-equivalent | `td/telegram/DialogAction.h` | `operator==` also compares `random_id_` and `text_` |
+| `1a8d24176` | exact (default-param) | `td/telegram/VideosManager.{cpp,h}`, `MessageContent.cpp` | repair video duration/thumbnail from alternative (HLS) videos |
+
+Of the 8 Wave-A `accept_with_repair` candidates: 5 landed above (`84f21a1d8`, `a74cc9af8`,
+`dc73b3ca3`, `e95e1fd0d`, `1a8d24176`); `39ea84dff` is already-present (the fork already uses the
+correct option name `pending_text_message_period`); `d78ceefc7` (niche ToDo constructor signature
+change) and `4e59e82d0` (include churn touching files absent in the fork) are deferred/dropped.
+`c3759d5c5` was an additional safe fix surfaced by the feasibility sweep.
+
+Wave A (provenance/inventory) is complete; gate tally over the 247 (all downstream-status `missing`):
+`defer_pending_context` 207 · `reject_not_relevant` 28 · `accept_with_repair` 8 ·
+`local_equivalent_adaptation` 4. **No stealth-transport (`td/mtproto`, `tdnet`, TlsInit) commit in
+the delta.** The W11-AI2 deferral is unchanged.
+
+Wave B (minimal correctness backports) is implemented in the tree — TDD-first contract tests then
+minimal fix; full build/`ctest`/sanitizer matrix runs on Linux CI. Landed:
+
+- `84f21a1d8` exact backport: `add_message_content_dependencies` now resolves the `bot_user_id`
+  dependency for `ManagedBotCreated` content (`td/telegram/MessageContent.cpp`).
+- `a74cc9af8` local-equivalent: persisted-draft parse clears same-chat replies that are yet-unsent
+  **or** local, preserving the fork's existing `is_valid_scheduled()` guard
+  (`td/telegram/DraftMessage.hpp`).
+- `dc73b3ca3` local-equivalent: repair of DB-loaded dialogs re-fetches unresolved messages and reloads
+  full dialog info on failed dependency resolution, keeping the fork's caller-`source` provenance
+  (`td/telegram/MessagesManager.cpp`).
+
+Wave B-2 (after a dry-run cherry-pick feasibility sweep of all 244 remaining commits — 55 apply
+cleanly, 189 conflict — only 2 are safe standalone fixes):
+
+- `c3759d5c5` exact: pending-call notification posted via `send_closure_later` instead of
+  `send_closure` (reentrancy/ordering hardening) (`td/telegram/CallActor.cpp`).
+- `e95e1fd0d` local-equivalent: `DialogAction::operator==` now also compares `random_id_` and `text_`;
+  the upstream `RichMessage message_` field is intentionally dropped (feature absent in the fork)
+  (`td/telegram/DialogAction.h`).
+
+Remaining ~239 commits stay deferred/rejected — product epics (rich-message, instant-view, WebBrowser,
+PollMedia, chat-join, live-location, …) requiring `td_api.tl` + new files + layer-227, which would
+violate fork policy "No bulk sync"; not safely backportable standalone.
+
+Contract tests: `test/managed_bot_created_dependency_contract.cpp`,
+`test/draft_local_reply_ignore_contract.cpp`, `test/parse_dialog_repair_refetch_contract.cpp`,
+`test/call_notification_send_closure_later_contract.cpp`, `test/dialog_action_equality_fields_contract.cpp`.
+Closeout: [docs/Plans/UPSTREAM_BACKPORT_PLAN_2026-06-15_WAVE_B_CLOSEOUT.md](docs/Plans/UPSTREAM_BACKPORT_PLAN_2026-06-15_WAVE_B_CLOSEOUT.md).
+
+### Phase 1 + Phase 2 bulk integration (update)
+
+The product epics flagged "deferred" above were subsequently integrated, epic-by-epic, on
+`feat/upstream-backport-bulk` (not a bulk sync — semantic per-commit detection, dependency-ordered
+cherry-picks, fork hardening preserved, contract tests, Linux build GREEN per epic).
+
+- **Phase 1** — clean/tractable commits (layer-227 schema, instant-view/PageBlock type additions,
+  managed-bot, etc.): ~101 cherry-picks + 4 local build-fixes.
+  Closeout: [docs/Plans/UPSTREAM_BACKPORT_PHASE1_CLOSEOUT_2026-06-16.md](docs/Plans/UPSTREAM_BACKPORT_PHASE1_CLOSEOUT_2026-06-16.md).
+- **Phase 2** — feature epics: chat-join/guard-bot, search-type-filter, in-app web browser,
+  instant-view RichText/PageBlock (render), poll-media (render), and misc (incl.
+  `checkAuthenticationWebToken`, tonsite→in-app-browser). 46 cherry-picks + 8 contract-test/fix commits.
+  Two tightly-coupled, non-mission SEND/content clusters (`messageRichMessage` content type and
+  poll-media links/web-pages-in-polls) are **deferred** for fork-safety — they would require
+  hand-reconstructing a new content subsystem with wire-serialization risk.
+  Full SHA manifest + verification:
+  [docs/Plans/UPSTREAM_BACKPORT_PHASE2_CLOSEOUT_2026-06-18.md](docs/Plans/UPSTREAM_BACKPORT_PHASE2_CLOSEOUT_2026-06-18.md).
+
+Verification at Phase-2 tip (`799657fd1`): stealth/DPI suite 239/239, SonarBlocker 51/51, Phase-1 3/3,
+Phase-2 16/16, W3-P poll voter-visibility 9/9, RestrictedRights 12/12 — all GREEN. No `td/mtproto`
+stealth-transport file was modified by the intake.
+
 ## Fork Backport Record (24 May 2026)
 
 This section is maintained by this fork and supplements the upstream changelog, which is not

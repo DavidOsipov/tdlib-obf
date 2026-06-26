@@ -1,11 +1,12 @@
-//
-// Copyright Aliaksei Levin (levlam@telegram.org), Arseny Smirnov (arseny30@gmail.com) 2014-2026
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+// SPDX-FileCopyrightText: Copyright Aliaksei Levin (levlam@telegram.org), Arseny Smirnov (arseny30@gmail.com) 2014-2026
+// SPDX-FileCopyrightText: Copyright 2026 telemt community
+// SPDX-License-Identifier: BSL-1.0 AND MIT
+// telemt: https://github.com/telemt
+// telemt: https://t.me/telemtrs
 //
 #include "td/telegram/CallActor.h"
 
+#include "td/telegram/BackportTestSeams.h"
 #include "td/telegram/DhCache.h"
 #include "td/telegram/DialogId.h"
 #include "td/telegram/Global.h"
@@ -847,20 +848,17 @@ void CallActor::flush_call_state() {
     return;
   }
   if (call_state_need_flush_) {
-    if (!is_outgoing_) {
-      if (call_state_.type == CallState::Type::Pending) {
-        if (!has_notification_) {
-          has_notification_ = true;
-          send_closure(G()->notification_manager(), &NotificationManager::add_call_notification,
-                       DialogId(call_admin_user_id_), local_call_id_);
-        }
-      } else {
-        if (has_notification_) {
-          has_notification_ = false;
-          send_closure(G()->notification_manager(), &NotificationManager::remove_call_notification,
-                       DialogId(call_admin_user_id_), local_call_id_);
-        }
-      }
+    auto notification_action = get_pending_call_notification_action(is_outgoing_,
+                                                                    call_state_.type == CallState::Type::Pending,
+                                                                    has_notification_);
+    if (notification_action == PendingCallNotificationAction::AddDeferred) {
+      has_notification_ = true;
+      send_closure_later(G()->notification_manager(), &NotificationManager::add_call_notification,
+                         DialogId(call_admin_user_id_), local_call_id_);
+    } else if (notification_action == PendingCallNotificationAction::RemoveImmediate) {
+      has_notification_ = false;
+      send_closure(G()->notification_manager(), &NotificationManager::remove_call_notification,
+                   DialogId(call_admin_user_id_), local_call_id_);
     }
 
     if (call_state_.type == CallState::Type::Ready && !call_state_has_config_) {
